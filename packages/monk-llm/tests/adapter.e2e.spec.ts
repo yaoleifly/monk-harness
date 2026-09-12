@@ -284,3 +284,17 @@ test('端到端：开启 webSearch 时带上 X-Monk-Web-Search 头', async () =>
     await new Promise<void>(resolve => server.close(() => resolve()))
   }
 })
+
+test('端到端：工具调用中途缺 function name 时软处理，不炸毁对话', async () => {
+  const server = await startMockServer(() => sse([
+    { choices: [{ index: 0, delta: { tool_calls: [{ index: 0, id: 'incomplete_call', function: { arguments: '{"x":1}' } }] } }] },
+    { choices: [{ index: 0, delta: { content: '已恢复' } }] },
+  ]))
+  try {
+    const chunks = await drain(adapterFor(server.url), request())
+    const text = chunks.filter(c => c.type === 'text-delta').map(c => c.type === 'text-delta' ? c.text : '').join('')
+    assert.equal(text, '已恢复')
+  } finally {
+    await server.close()
+  }
+})

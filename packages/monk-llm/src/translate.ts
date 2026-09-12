@@ -255,13 +255,9 @@ export class ChunkTranslator {
     }
     for (const [wireIndex, blockIndex] of this.toolIndexes) {
       const call = this.toolCalls.get(wireIndex)
-      if (call === undefined) continue
-      if (call.name === '') {
-        throw new LlmError(
-          `monk: tool call at wire index ${wireIndex} never received a function name`,
-          'PROTOCOL_ERROR',
-        )
-      }
+      // 名字为空说明流在中途被中断，或提供方输出了空工具帧：跳过无名字的破坏帧，
+      // 保留已收到的文本与有效工具调用，避免整回合崩溃。
+      if (call === undefined || call.name === '') continue
       blocks.set(blockIndex, {
         type: 'tool-call',
         id: call.id as never,
