@@ -75,6 +75,11 @@
 - id: llm-deepseek
   disabled: true
 
+# 禁用官方对 TUN/VPN Fake-IP (172.19.x.x) 会误判拦截的 web-fetch-http。
+# 由 monk-bundle 内置的高兼容 Fetch 提供方接管。
+- id: web-fetch-http
+  disabled: true
+
 - insert:
     # Monk 品牌：monk.party 的标志与字标占住两个侧边栏槽位，并在**活动主题之上**
     # 叠一层 Monk 令牌覆盖（`ctx.theme.overrideTokens`），因此用户无论选 light、

@@ -1,6 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { serializeMessages, serializeRequest, serializeTools } from '../src/serialize.ts'
+import { normalizeToolArguments } from '../src/translate.ts'
 import type { Message, ToolSchema } from '@deepseek-ai/dsh-llm'
 
 test('序列化消息：用户普通文本与助手回复', () => {
@@ -79,4 +80,22 @@ test('工具声明确定性按字典序排序，保证前缀 KV 缓存稳定', (
     serialized.map(t => t.function.name),
     ['bash', 'edit', 'write'],
   )
+})
+
+test('工具调用参数健壮性归一化：web_search 字符串参数提升为数组', () => {
+  // 传 queries 为单个字符串
+  const res1 = normalizeToolArguments('web_search', JSON.stringify({ queries: '南方网新闻' }))
+  assert.deepEqual(JSON.parse(res1), { queries: ['南方网新闻'] })
+
+  // 传 query 别名
+  const res2 = normalizeToolArguments('web_search', JSON.stringify({ query: 'DeepSeek news' }))
+  assert.deepEqual(JSON.parse(res2), { queries: ['DeepSeek news'] })
+
+  // 传 q 别名
+  const res3 = normalizeToolArguments('web_search', JSON.stringify({ q: 'test' }))
+  assert.deepEqual(JSON.parse(res3), { queries: ['test'] })
+
+  // 原生标准数组不变
+  const res4 = normalizeToolArguments('web_search', JSON.stringify({ queries: ['a', 'b'] }))
+  assert.deepEqual(JSON.parse(res4), { queries: ['a', 'b'] })
 })

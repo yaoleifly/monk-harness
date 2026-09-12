@@ -90,6 +90,81 @@ export function mapFinishReason(raw: string | null | undefined, hasToolCalls: bo
 }
 
 /**
+ * 对工具调用的参数进行健壮性归一化。
+ *
+ * 背景：部分模型在调用 `web_search` 时，常把必需的 `queries: string[]`
+ * 传成单个字符串 `queries: "..."`，或使用常见的别名 `query: "..."` / `q: "..."`。
+ * dsh 核心的 JSON Schema 校验会直接以 `"queries" must be an array` 拒绝并报错。
+ * 本函数在流组装阶段进行无损归一化，把非标参数自动提升为合法的参数形状。
+ */
+export function normalizeToolArguments(name: string, rawArgs: string): string {
+  if (!rawArgs || rawArgs.trim() === '') return '{}'
+  try {
+    const parsed = JSON.parse(rawArgs)
+    if (typeof parsed !== 'object' || parsed === null) return rawArgs
+
+    if (name === 'web_search') {
+      let qList: string[] | undefined
+
+      if (typeof parsed.queries === 'string') {
+        const q = parsed.queries.trim()
+        if (q) qList = [q]
+      } else if (Array.isArray(parsed.queries)) {
+        qList = parsed.queries.map((q: unknown) => String(q ?? '').trim()).filter((q: string) => q.length > 0)
+      } else if (typeof parsed.query === 'string') {
+        const q = parsed.query.trim()
+        if (q) qList = [q]
+      } else if (Array.isArray(parsed.query)) {
+        qList = parsed.query.map((q: unknown) => String(q ?? '').trim()).filter((q: string) => q.length > 0)
+      } else if (typeof parsed.q === 'string') {
+        const q = parsed.q.trim()
+        if (q) qList = [q]
+      } else if (typeof parsed.search === 'string') {
+        const q = parsed.search.trim()
+        if (q) qList = [q]
+      } else if (typeof parsed.keyword === 'string') {
+        const q = parsed.keyword.trim()
+        if (q) qList = [q]
+      }
+
+      if (qList !== undefined && qList.length > 0) {
+        parsed.queries = qList
+        delete parsed.query
+        delete parsed.q
+        delete parsed.search
+        delete parsed.keyword
+        return JSON.stringify(parsed)
+      }
+    }
+
+    if (name === 'web_fetch') {
+      const urlCandidate = parsed.url ?? parsed.link ?? parsed.uri ?? parsed.href
+      if (typeof urlCandidate === 'string' && urlCandidate.trim().length > 0) {
+        parsed.url = urlCandidate.trim()
+        delete parsed.link
+        delete parsed.uri
+        delete parsed.href
+        return JSON.stringify(parsed)
+      }
+    }
+
+    if (name === 'bash' || name === 'pwsh') {
+      const cmdCandidate = parsed.command ?? parsed.cmd ?? parsed.code
+      if (typeof cmdCandidate === 'string') {
+        parsed.command = cmdCandidate
+        delete parsed.cmd
+        delete parsed.code
+        return JSON.stringify(parsed)
+      }
+    }
+
+    return JSON.stringify(parsed)
+  } catch {
+    return rawArgs
+  }
+}
+
+/**
  * 有状态的 wire → 中立分片翻译器。
  *
  * 用法：对每个 wire 分片调用 {@link push} 并转发其返回值，流结束后调用
@@ -263,7 +338,7 @@ export class ChunkTranslator {
         id: call.id as never,
         name: call.name,
         // 契约：arguments 全程为原始 JSON 字符串。
-        arguments: call.args === '' ? '{}' : call.args,
+        arguments: normalizeToolArguments(call.name, call.args),
       })
     }
     return new Map([...blocks.entries()].sort((a, b) => a[0] - b[0]))

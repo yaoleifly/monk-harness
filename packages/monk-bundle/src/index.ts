@@ -97,6 +97,61 @@ export async function selfCheck(ctx: Context): Promise<SelfCheckResult> {
 }
 
 /**
+ * Monk Harness 高兼容 Web 抓取提供方。
+ *
+ * 解决原生 dsh-web-fetch-http 在遇到本地 VPN / TUN / Fake-IP 环境（如 172.19.x.x）
+ * 时将公网域名误判为私网 IP 并抛错 WEB_BLOCKED_URL 的问题。
+ * 同时防范真正的本地环回地址 (localhost / 127.0.0.1 / ::1)。
+ */
+export class MonkWebFetchProvider {
+  readonly id = 'http'
+
+  available(): boolean {
+    return true
+  }
+
+  async fetch(request: { url: string }, signal?: AbortSignal): Promise<{
+    url: string
+    statusCode: number
+    body: { kind: 'html' | 'text'; content: string }
+    truncated: boolean
+  }> {
+    const parsedUrl = new URL(request.url)
+    if (parsedUrl.protocol !== 'http:' && parsedUrl.protocol !== 'https:') {
+      throw new Error(`unsupported protocol ${parsedUrl.protocol}`)
+    }
+    const hostname = parsedUrl.hostname.replace(/^\[|\]$/g, '').toLowerCase()
+    if (['localhost', '127.0.0.1', '::1', '0.0.0.0'].includes(hostname)) {
+      throw new Error(`blocked loopback destination: ${hostname}`)
+    }
+
+    const response = await globalThis.fetch(request.url, {
+      method: 'GET',
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36 MonkHarness/0.1.0',
+        'Accept': 'text/html,application/xhtml+xml,text/*;q=0.9,application/json;q=0.8',
+      },
+      redirect: 'follow',
+      ...signal ? { signal } : {},
+    })
+
+    const contentType = response.headers.get('content-type') ?? ''
+    const kind = contentType.includes('html') ? 'html' : 'text'
+    const rawText = await response.text()
+    const maxChars = 100_000
+    const truncated = rawText.length > maxChars
+    const content = truncated ? rawText.slice(0, maxChars) : rawText
+
+    return {
+      url: response.url || request.url,
+      statusCode: response.status,
+      body: { kind, content },
+      truncated,
+    }
+  }
+}
+
+/**
  * 插件挂载点。
  *
  * 自检在挂载时跑一次并把结果写进日志，同时把结果放进服务供 `/monk doctor`
@@ -110,6 +165,13 @@ export function apply(ctx: Context): void {
     provider: MONK_PROVIDER,
     selfCheck: run,
   } satisfies MonkHarnessService)
+
+  // 挂载高兼容 Web 抓取后端，替换被禁用的 web-fetch-http
+  ctx.inject(['web'], (webCtx: any) => {
+    if (webCtx.web?.registerFetchProvider) {
+      webCtx.web.registerFetchProvider(new MonkWebFetchProvider())
+    }
+  })
 
   // 用微任务推迟到组合树稳定之后：挂载顺序不保证 monk-llm 已经先注册。
   queueMicrotask(() => {
