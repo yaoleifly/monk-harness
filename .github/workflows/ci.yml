@@ -1,0 +1,43 @@
+name: Monk Harness CI
+
+on:
+  push:
+    branches: [ main ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 10.0.0
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build packages
+        run: pnpm build
+
+      - name: Typecheck
+        run: pnpm -r typecheck
+
+      - name: Run unit tests
+        run: node --test 'packages/*/tests/*.spec.ts'
+
+      - name: Install DeepSeek Harness for E2E
+        run: npm install -g @deepseek-ai/dsh
+
+      - name: Run E2E smoke tests
+        run: bash scripts/e2e-smoke.sh
