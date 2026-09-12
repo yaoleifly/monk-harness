@@ -293,6 +293,7 @@ function MonkKeyCard(props) {
   const [saved, setSaved] = React.useState(false)
   const [ref, setRef] = React.useState(DEFAULT_API_KEY_ENV)
   const [configured, setConfigured] = React.useState(props.keyConfigured === true)
+  const [expanded, setExpanded] = React.useState(props.keyConfigured !== true)
   const [writable, setWritable] = React.useState(true)
 
   React.useEffect(() => {
@@ -300,9 +301,9 @@ function MonkKeyCard(props) {
     credentials.resolve().then((resolved) => {
       if (stale) return
       setRef(resolved.ref)
-      // 三态：只有真读到结果才覆盖初始判定。读不到时保留 owner props 里
-      // 那个已知事实，而不是把"不知道"显示成"没配置"。
-      if (resolved.configured !== undefined) setConfigured(resolved.configured)
+      if (resolved.configured !== undefined) {
+        setConfigured(resolved.configured)
+      }
       setWritable(resolved.writable)
     }).catch(() => {
       // 解析失败保留初始判定，界面照常可用。
@@ -334,6 +335,10 @@ function MonkKeyCard(props) {
       setDraft('')
       setConfigured(true)
       setSaved(true)
+      setTimeout(() => {
+        setExpanded(false)
+        setSaved(false)
+      }, 1000)
     } finally {
       setBusy(false)
     }
@@ -355,54 +360,72 @@ function MonkKeyCard(props) {
             className: 'monk-key-state',
             children: configured ? t('configured') : t('unconfigured'),
           }),
-        ],
-      }),
-      jsxs('div', {
-        className: 'monk-key-row',
-        children: [
-          jsx('input', {
-            className: 'monk-key-input',
-            type: 'password',
-            autoComplete: 'off',
-            spellCheck: false,
-            value: draft,
-            placeholder: t('keyPlaceholder'),
-            'aria-label': t('keyLabel'),
-            'aria-invalid': failure !== undefined,
-            disabled: busy || !writable,
-            onChange: (event) => setDraft(event.target.value),
-            onKeyDown: (event) => {
-              if (event.key === 'Enter') {
-                event.preventDefault()
-                void submit()
-              }
-            },
-          }),
-          jsx('button', {
-            className: 'monk-key-save',
+          configured && !expanded ? jsx('button', {
+            className: 'monk-key-toggle',
             type: 'button',
-            disabled: busy || !writable,
-            onClick: () => {
-              void submit()
-            },
-            children: busy ? t('saving') : t('save'),
-          }),
+            onClick: () => setExpanded(true),
+            children: t('editKey'),
+          }) : null,
         ],
       }),
-      jsx('p', { className: 'monk-key-hint', children: t('hint') }),
+      expanded ? jsxs('div', {
+        className: 'monk-key-body',
+        children: [
+          jsxs('div', {
+            className: 'monk-key-row',
+            children: [
+              jsx('input', {
+                className: 'monk-key-input',
+                type: 'password',
+                autoComplete: 'off',
+                spellCheck: false,
+                value: draft,
+                placeholder: t('keyPlaceholder'),
+                'aria-label': t('keyLabel'),
+                'aria-invalid': failure !== undefined,
+                disabled: busy || !writable,
+                onChange: (event) => setDraft(event.target.value),
+                onKeyDown: (event) => {
+                  if (event.key === 'Enter') {
+                    event.preventDefault()
+                    void submit()
+                  }
+                },
+              }),
+              jsx('button', {
+                className: 'monk-key-save',
+                type: 'button',
+                disabled: busy || !writable,
+                onClick: () => {
+                  void submit()
+                },
+                children: busy ? t('saving') : t('save'),
+              }),
+              configured ? jsx('button', {
+                className: 'monk-key-cancel',
+                type: 'button',
+                onClick: () => {
+                  setExpanded(false)
+                  setFailure(undefined)
+                },
+                children: t('collapse'),
+              }) : null,
+            ],
+          }),
+          jsx('p', { className: 'monk-key-hint', children: t('hint') }),
+          failure === undefined
+            ? null
+            : jsx('p', { className: 'monk-key-error', role: 'alert', children: failure }),
+          saved ? jsx('p', { className: 'monk-key-ok', role: 'status', children: t('saved') }) : null,
+        ],
+      }) : null,
       jsx('p', {
         className: 'monk-key-note',
-        // 引用名以 <code> 呈现：它是用户在 settings.yaml 里唯一会看到的名字，
-        // 直接印出来比让用户去猜"密钥存哪了"更有用。
         children: t('store').split('{ref}').flatMap((part, index) => index === 0
           ? [part]
           : [jsx('code', { className: 'monk-key-code', children: ref }, `ref${index}`), part]),
       }),
       writable ? null : jsx('p', { className: 'monk-key-note', children: t('readOnly') }),
-      failure === undefined
-        ? null
-        : jsx('p', { className: 'monk-key-error', role: 'alert', children: failure }),
-      saved ? jsx('p', { className: 'monk-key-ok', role: 'status', children: t('saved') }) : null,
     ],
   })
 }
