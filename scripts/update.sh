@@ -54,7 +54,9 @@ dsh plugin --profile monk add \
   "$REPO_ROOT/packages/monk-router" \
   "$REPO_ROOT/packages/monk-usage" \
   "$REPO_ROOT/packages/monk-ui-brand" \
-  dshmarket
+  dshmarket \
+  @liustack/modsearch \
+  dsh-context
 
 # 5. 触发热重载与自检
 echo "-> 4/4 触发热重载与运行自检..."

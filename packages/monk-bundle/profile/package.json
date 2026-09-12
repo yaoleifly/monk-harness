@@ -9,12 +9,16 @@
         "@deepseek-ai/dsh-base",
         "@deepseek-ai/dsh-web-app",
         "@monk/monk-bundle",
-        "dshmarket"
+        "dshmarket",
+        "@liustack/modsearch",
+        "dsh-context"
       ],
       "patchReload": "live"
     }
   },
   "dependencies": {
+    "@liustack/modsearch": ">=5.0.0",
+    "dsh-context": ">=0.45.0",
     "dshmarket": ">=1.0.0"
   }
 }

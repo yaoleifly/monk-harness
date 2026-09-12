@@ -43,7 +43,7 @@ cp packages/monk-bundle/profile/cordis.patch.yml "$DSH_HOME/profiles/monk/"
 dsh plugin --profile monk add \
   ./packages/monk-bundle ./packages/monk-llm ./packages/monk-llm-ui \
   ./packages/monk-router ./packages/monk-usage ./packages/monk-ui-brand \
-  dshmarket
+  dshmarket @liustack/modsearch dsh-context
 
 # 4. 配密钥
 export MONK_API_KEY="sk-..."      # 或经 Web 的 Models 页面写入受管凭据存储
@@ -86,7 +86,10 @@ $ /monk help     # 查看指令帮助
 
 模型也能自己查 —— `monk_usage` 工具让它知道剩余额度，从而主动收敛输出长度，而不是等被拒绝。
 
-**默认集成插件市场。** profile 默认搭载 [dshmarket](https://dshmk.com/)，可在 Web 界面左下角/设置区直接浏览、检索与一键安装社区生态插件。
+**默认内置三大实用插件。** profile 默认搭载生态热门生产力插件：
+- **[dshmarket](https://dshmk.com/)**：可视化插件市场，一键搜索与安装扩展；
+- **[@liustack/modsearch](https://github.com/liustack/modsearch)**：免费免 Key 实时网页搜索与推特/网页提取；
+- **[dsh-context](https://github.com/bowenliang123/dsh-context)**：直观的上下文 Token 构成洞察与演化看板。
 
 **启动自检。** 配置错位在 dsh 里是静默的（patch 按 id 定位，找不到就忽略）。自检把它提前到进程启动的第一秒，并把修法写进日志。
 

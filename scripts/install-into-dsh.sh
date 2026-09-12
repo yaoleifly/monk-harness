@@ -66,12 +66,20 @@ dsh plugin --profile monk add \
   "$REPO_ROOT/packages/monk-router" \
   "$REPO_ROOT/packages/monk-usage" \
   "$REPO_ROOT/packages/monk-ui-brand" \
-  dshmarket
+  dshmarket \
+  @liustack/modsearch \
+  dsh-context
 
 # ── 5. 自检 ────────────────────────────────────────────────────────────────────
-echo "==> 确认 dshmarket (https://dshmk.com/) 插件市场已挂载"
+echo "==> 确认 dshmarket / modsearch / dsh-context 插件已挂载"
 dsh --profile monk --dump-config | grep -q "name: dshmarket" || {
   echo "警告：dshmarket 行缺失，插件市场可能未正确加载。" >&2
+}
+dsh --profile monk --dump-config | grep -q "name: '@liustack/modsearch'" || {
+  echo "警告：@liustack/modsearch 行缺失，网页搜索可能未正确加载。" >&2
+}
+dsh --profile monk --dump-config | grep -q "name: dsh-context" || {
+  echo "警告：dsh-context 行缺失，上下文看板可能未正确加载。" >&2
 }
 
 echo "==> 确认界面品牌已替换官方行"
