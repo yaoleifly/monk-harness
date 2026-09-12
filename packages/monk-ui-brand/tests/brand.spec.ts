@@ -427,6 +427,38 @@ test('标题改写：产品段换成 Monk', async () => {
   assert.equal(monkTitle('修一个 bug — DeepSeek Harness'), '修一个 bug — Monk')
 })
 
+test('Favicon 观察与改写：自动将 head 中的 icon link 替换为 Monk SVG Data URL', async () => {
+  const savedDocument = (globalThis as { document?: unknown }).document
+  const mockLink: { href?: string; type?: string; getAttribute: (k: string) => string | undefined; setAttribute: (k: string, v: string) => void } = {
+    href: 'old-favicon.ico',
+    getAttribute(k: string) {
+      return k === 'href' ? this.href : k === 'type' ? this.type : undefined
+    },
+    setAttribute(k: string, v: string) {
+      if (k === 'href') this.href = v
+      if (k === 'type') this.type = v
+    },
+  }
+  ;(globalThis as { document?: unknown }).document = {
+    querySelector: (selector: string) => selector.includes('icon') ? mockLink : null,
+    createElement: () => mockLink,
+    head: { appendChild: () => {} },
+  }
+
+  try {
+    const module = await loadModule()
+    const observeFavicon = module.observeFavicon as () => () => void
+    const dispose = observeFavicon()
+    assert.ok(mockLink.href?.startsWith('data:image/svg+xml'), 'favicon 应被替换为 Monk SVG Data URL')
+    assert.equal(mockLink.type, 'image/svg+xml')
+    assert.equal(typeof dispose, 'function')
+    dispose()
+  } finally {
+    if (savedDocument === undefined) delete (globalThis as { document?: unknown }).document
+    else (globalThis as { document?: unknown }).document = savedDocument
+  }
+})
+
 test('标题改写：不改会话标题里出现的产品名', async () => {
   const monkTitle = (await loadModule()).monkTitle as (current: string) => string | undefined
   // 产品名在**中间**——那是用户自己起的会话名，不能动。

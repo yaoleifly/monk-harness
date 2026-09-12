@@ -47,6 +47,11 @@ const PRODUCT_TITLE = 'DeepSeek Harness'
 /** 替换后的产品名。 */
 const BRAND_TITLE = 'Monk'
 
+/** monk.party 官方标志 SVG data URL，供浏览器标签页 favicon 使用。 */
+const MONK_FAVICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none"><defs><linearGradient id="b" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#0F172A"/><stop offset="100%" stop-color="#020617"/></linearGradient><linearGradient id="f" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#EA580C"/><stop offset="50%" stop-color="#F97316"/><stop offset="100%" stop-color="#FDE047"/></linearGradient><linearGradient id="h" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#FB923C" stop-opacity="0.6"/><stop offset="100%" stop-color="#F97316" stop-opacity="0.05"/></linearGradient></defs><rect width="512" height="512" rx="128" fill="url(#b)"/><rect width="512" height="512" rx="128" stroke="rgba(255,255,255,0.08)" stroke-width="4"/><circle cx="256" cy="246" r="150" stroke="url(#h)" stroke-width="12" stroke-linecap="round" fill="none"/><circle cx="256" cy="148" r="32" fill="url(#f)"/><path d="M 172 384 L 208 220 L 256 280 L 224 384 Z" fill="url(#f)" opacity="0.9"/><path d="M 340 384 L 304 220 L 256 280 L 288 384 Z" fill="url(#f)" opacity="0.9"/><path d="M 256 216 L 278 284 L 256 372 L 234 284 Z" fill="#FFFBEB"/><circle cx="380" cy="170" r="8" fill="#38BDF8"/><circle cx="132" cy="310" r="6" fill="#A855F7"/><circle cx="360" cy="340" r="7" fill="#F59E0B"/></svg>`
+
+const MONK_FAVICON_DATA_URL = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(MONK_FAVICON_SVG)}`
+
 /** 空白会话首屏的品牌位；官方文档保证该槽位在所有构建中都没有占用者。 */
 const HERO_MARK_SLOT = 'conversation.hero.brand.mark'
 
@@ -328,6 +333,36 @@ function observeTitle() {
 }
 
 /**
+ * 观察并替换浏览器 `<head>` 中的 favicon 节点。
+ *
+ * 把外壳默认的 icon link 改写为 Monk 僧侣标志 SVG；若不存在 icon link 则动态追加。
+ * @returns 断开观察与清理函数。
+ */
+function observeFavicon() {
+  if (typeof document === 'undefined' || typeof document.querySelector !== 'function') return () => {}
+
+  const applyFavicon = () => {
+    let link = document.querySelector('link[rel*="icon"]')
+    if (link === null) {
+      link = document.createElement('link')
+      link.setAttribute('rel', 'icon')
+      document.head.appendChild(link)
+    }
+    if (link.getAttribute('href') !== MONK_FAVICON_DATA_URL) {
+      link.setAttribute('type', 'image/svg+xml')
+      link.setAttribute('href', MONK_FAVICON_DATA_URL)
+    }
+  }
+
+  applyFavicon()
+
+  if (typeof MutationObserver === 'undefined') return () => {}
+  const observer = new MutationObserver(applyFavicon)
+  observer.observe(document.head, { childList: true, subtree: true, attributes: true })
+  return () => observer.disconnect()
+}
+
+/**
  * 判断元素是否带着某个 CSS Module 局部名。
  *
  * 产物里的类名形如 `pXSMma_headlineText`；开发构建（未经压缩的 CSS Module）
@@ -443,6 +478,7 @@ function observeHeroCopy() {
 function apply(ctx) {
   ctx.effect(() => injectStyles())
   ctx.effect(() => observeTitle())
+  ctx.effect(() => observeFavicon())
   ctx.effect(() => observeHeroCopy())
   ctx.slots.inject('sidebar.brand.mark', () => ctx.slots.inject('sidebar.brand.name', function* () {
     yield ctx.slots.register({ name: 'sidebar.brand.mark' }, MonkBrandMark)
@@ -460,11 +496,13 @@ export {
   MONK_THEME_TOKENS,
   PRODUCT_TITLE,
   BRAND_TITLE,
+  MONK_FAVICON_DATA_URL,
   HERO_MARK_SLOT,
   HERO_COPY,
   HERO_COPY_SELECTOR,
   STYLES,
   monkTitle,
+  observeFavicon,
   hasLocalClass,
   rewriteHeroCopy,
   sweepHeroCopy,

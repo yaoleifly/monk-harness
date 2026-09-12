@@ -42,6 +42,9 @@ importers:
       '@deepseek-ai/dsh-llm':
         specifier: ^0.1.2-rc.1
         version: 0.1.2-rc.1(@deepseek-ai/cordis@4.0.2)
+      '@types/node':
+        specifier: ^22.10.0
+        version: 22.20.2
 
   packages/monk-llm:
     devDependencies:
@@ -63,6 +66,9 @@ importers:
       '@deepseek-ai/schemastery':
         specifier: ^3.18.2
         version: 3.18.2
+      '@types/node':
+        specifier: ^22.10.0
+        version: 22.20.2
 
   packages/monk-llm-ui:
     devDependencies:
@@ -108,6 +114,9 @@ importers:
       '@monk/monk-llm':
         specifier: workspace:^
         version: link:../monk-llm
+      '@types/node':
+        specifier: ^22.10.0
+        version: 22.20.2
 
   packages/monk-ui-brand:
     devDependencies:
@@ -156,6 +165,9 @@ importers:
       '@deepseek-ai/schemastery':
         specifier: ^3.18.2
         version: 3.18.2
+      '@types/node':
+        specifier: ^22.10.0
+        version: 22.20.2
 
 packages:
 
