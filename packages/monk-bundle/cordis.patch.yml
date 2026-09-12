@@ -71,6 +71,10 @@
 - id: ui-brand-official
   disabled: true
 
+# 禁用官方 DeepSeek 默认提供方，在 Models 列表中只保留 Monk。
+- id: llm-deepseek
+  disabled: true
+
 - insert:
     # Monk 品牌：monk.party 的标志与字标占住两个侧边栏槽位，并在**活动主题之上**
     # 叠一层 Monk 令牌覆盖（`ctx.theme.overrideTokens`），因此用户无论选 light、
