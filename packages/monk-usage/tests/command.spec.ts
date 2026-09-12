@@ -77,6 +77,11 @@ test('/monk 命令注册与基础响应', async () => {
   assert.equal(resSearchSet.kind, 'success')
   assert.equal(mode, 'on')
 
+  // 测试 /monk cache
+  const resCache = await registeredCommand.handler({ rawInput: 'cache', agent: invocation.agent })
+  assert.equal(resCache.kind, 'success')
+  assert.ok(resCache.text.includes('Monk 前缀 KV 缓存统计'))
+
   // 测试 /monk export
   const resExport = await registeredCommand.handler({ rawInput: 'export', agent: invocation.agent })
   assert.equal(resExport.kind, 'success')

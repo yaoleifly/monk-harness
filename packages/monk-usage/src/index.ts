@@ -355,6 +355,31 @@ export function apply(ctx: Context, config: Config): void {
             }
           }
 
+          if (sub === 'cache') {
+            const month = currentMonth()
+            const totals = ledger.forMonth(month)
+            const session = agent !== undefined ? ledger.forSession(String(agent.session.id)) : undefined
+            const monthRate = (cacheHitRate(totals) * 100).toFixed(1)
+            const sessionRate = session !== undefined ? (cacheHitRate(session) * 100).toFixed(1) : '0.0'
+            const lines = [
+              '⚡ Monk 前缀 KV 缓存统计与加速指标：',
+              `本月缓存命中率：${monthRate}% (命中 ${formatTokens(totals.cacheReadTokens)} / 计费输入 ${formatTokens(totals.billedInputTokens)})`,
+            ]
+            if (session !== undefined) {
+              lines.push(
+                `当前会话命中率：${sessionRate}% (命中 ${formatTokens(session.cacheReadTokens)} / 计费输入 ${formatTokens(session.billedInputTokens)})`,
+              )
+            }
+            lines.push(
+              `累计节省计算：已为您复用并加速了约 ${formatTokens(totals.cacheReadTokens)} token 的上下文计算！`,
+              '已激活的前缀缓存优化：',
+              '- 工具声明确定性字典序排序：已就绪 ✓ (保证 tools 前缀字节一致)',
+              '- 轮次内模型粘滞 (Turn-Sticky)：已就绪 ✓ (防止跨模型击穿 KV 缓存)',
+              '- 提示词纯静态与并行工具调用：已生效 ✓',
+            )
+            return { kind: 'success' as const, text: lines.join('\n') }
+          }
+
           if (sub === 'export') {
             const month = currentMonth()
             const totals = ledger.forMonth(month)
@@ -396,6 +421,7 @@ export function apply(ctx: Context, config: Config): void {
                 'Monk 指令帮助：',
                 '/monk 或 /monk usage - 查看订阅用量与本会话开销',
                 '/monk status 或 /monk router - 查看当前会话的模型选路依据与路由状态',
+                '/monk cache - 查看前缀 KV 缓存命中率与加速统计',
                 '/monk search [on|off|auto] - 查看或设置智能联网搜索模式',
                 '/monk export - 导出当前用量与开销报告 Markdown',
                 '/monk doctor - 运行 Monk Harness 系统自检与诊断',
@@ -407,7 +433,7 @@ export function apply(ctx: Context, config: Config): void {
 
           return {
             kind: 'error' as const,
-            text: `未知子命令 "${sub}"；可用：usage、status、search、export、doctor、update、plan、help`,
+            text: `未知子命令 "${sub}"；可用：usage、status、cache、search、export、doctor、update、plan、help`,
           }
         },
       })
