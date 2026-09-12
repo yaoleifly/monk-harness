@@ -120,28 +120,28 @@ const en = {
  * `--dsw-alias-*` 语义令牌并带兜底值，因此在本包单独存在时也能渲染。
  */
 const STYLES = `
-.monk-key{display:flex;flex-direction:column;gap:12px;padding:16px;border:1px solid var(--dsw-alias-border-l4,#ebebeb);border-radius:12px;background:var(--dsw-alias-bg-module-platform,#fafafa);font-family:Geist,Inter,system-ui,-apple-system,sans-serif;box-shadow:0 1px 2px rgba(0,0,0,.03)}
+.monk-key{display:flex;flex-direction:column;gap:12px;padding:16px;border:1px solid var(--dsw-alias-border-l1,#ebebeb);border-radius:12px;background:var(--dsw-alias-bg-base,#fafafa);font-family:Geist,Inter,system-ui,-apple-system,sans-serif;box-shadow:0 1px 1px rgba(0,0,0,.03),0 2px 2px rgba(0,0,0,.04)}
 .monk-key-head{align-items:center;gap:8px;display:flex}
-.monk-key-label{color:var(--dsw-alias-label-primary,#171717);font-size:13px;font-weight:500;line-height:18px;letter-spacing:-0.28px}
+.monk-key-label{color:var(--dsw-alias-label-primary,#171717);font-size:14px;font-weight:500;line-height:20px;letter-spacing:-0.28px}
 .monk-key-dot{box-sizing:border-box;border-radius:50%;flex:none;width:8px;height:8px;display:inline-block}
 .monk-key-dot-on{background:var(--dsw-alias-state-success-primary,#0070f3)}
 .monk-key-dot-off{background:var(--dsw-alias-state-error-primary,#ee0000)}
-.monk-key-state{color:var(--dsw-alias-label-tertiary,#888888);margin-left:auto;font-family:Geist Mono,ui-monospace,SFMono-Regular,Menlo,Monaco,monospace;font-size:12px;line-height:16px}
+.monk-key-state{color:var(--dsw-alias-label-secondary,#888888);margin-left:auto;font-family:Geist Mono,ui-monospace,SFMono-Regular,Menlo,Monaco,monospace;font-size:12px;line-height:16px}
 .monk-key-row{align-items:center;gap:8px;display:flex}
-.monk-key-input{box-sizing:border-box;border:1px solid var(--dsw-alias-border-l4,#ebebeb);flex:1 1 0;min-width:0;height:32px;color:var(--dsw-alias-label-primary,#171717);font-family:Geist Mono,ui-monospace,SFMono-Regular,Menlo,Monaco,monospace;background:var(--dsw-alias-bg-layer-1,#ffffff);border-radius:6px;padding:0 10px;font-size:13px;line-height:20px;transition:border-color .15s ease,box-shadow .15s ease}
+.monk-key-input{box-sizing:border-box;border:1px solid var(--dsw-alias-border-l1,#ebebeb);flex:1 1 0;min-width:0;height:32px;color:var(--dsw-alias-label-primary,#171717);font-family:Geist Mono,ui-monospace,SFMono-Regular,Menlo,Monaco,monospace;background:var(--dsw-alias-bg-layer-1,#ffffff);border-radius:6px;padding:0 10px;font-size:13px;line-height:20px;transition:border-color .15s ease,box-shadow .15s ease}
 .monk-key-input:focus{border-color:var(--dsw-alias-brand-primary,#ea580c);box-shadow:0 0 0 2px rgba(234,88,12,.15);outline:none}
-.monk-key-input::placeholder{color:var(--dsw-alias-label-dimmed,#888888);font-family:Geist,Inter,system-ui,-apple-system,sans-serif}
+.monk-key-input::placeholder{color:var(--dsw-alias-label-secondary,#888888);font-family:Geist,Inter,system-ui,-apple-system,sans-serif}
 .monk-key-input:disabled{opacity:.6;cursor:default}
-.monk-key-save{box-sizing:border-box;height:32px;color:#ffffff;font-family:Geist,Inter,system-ui,-apple-system,sans-serif;font-weight:500;cursor:pointer;background:#171717;border:none;border-radius:100px;justify-content:center;align-items:center;padding:0 16px;font-size:13px;line-height:20px;display:inline-flex;transition:background-color .15s ease}
+.monk-key-save{box-sizing:border-box;height:32px;color:#ffffff;font-family:Geist,Inter,system-ui,-apple-system,sans-serif;font-weight:500;cursor:pointer;background:#171717;border:none;border-radius:100px;justify-content:center;align-items:center;padding:0 16px;font-size:14px;line-height:20px;display:inline-flex;transition:background-color .15s ease}
 .monk-key-save:hover:not(:disabled){background:#333333}
 .monk-key-save:disabled{opacity:.4;cursor:default}
 .monk-key-save:focus-visible{box-shadow:0 0 0 2px #171717;outline:none}
 .monk-key-hint,.monk-key-note,.monk-key-ok,.monk-key-error{margin:0;font-size:12px;line-height:18px}
-.monk-key-hint{color:var(--dsw-alias-label-secondary,#4d4d4d)}
-.monk-key-note{color:var(--dsw-alias-label-tertiary,#888888)}
+.monk-key-hint{color:var(--dsw-alias-label-secondary,#4d4d4d);letter-spacing:-0.28px}
+.monk-key-note{color:var(--dsw-alias-label-secondary,#888888)}
 .monk-key-ok{color:var(--dsw-alias-state-success-primary,#0070f3);font-weight:500}
 .monk-key-error{color:var(--dsw-alias-state-error-primary,#ee0000);font-weight:500}
-.monk-key-code{font-family:Geist Mono,ui-monospace,SFMono-Regular,Menlo,Monaco,monospace;font-size:12px;padding:2px 5px;background:var(--dsw-alias-canvas-soft-2,#f5f5f5);border-radius:4px;overflow-wrap:anywhere}
+.monk-key-code{font-family:Geist Mono,ui-monospace,SFMono-Regular,Menlo,Monaco,monospace;font-size:12px;padding:2px 5px;background:var(--dsw-alias-bg-layer-2,#f5f5f5);border:1px solid var(--dsw-alias-border-l1,#ebebeb);border-radius:4px;overflow-wrap:anywhere}
 `
 
 /**

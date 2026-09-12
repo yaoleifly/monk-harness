@@ -93,12 +93,26 @@ const MONK = {
  * 覆盖层令牌。两种配色都必须给值——只给一态的话，用户切到另一配色时
  * 这层覆盖会变成不可读的颜色。
  *
- * 只碰"品牌色"这一类语义令牌，不动背景/文字令牌：前者是身份，后者是
- * 对比度契约，改错会直接影响可读性。
+ * 严格按照 vercel-DESIGN.md 规范映射扩展令牌：
+ * - canvas-soft (#fafafa) / canvas (#ffffff) / canvas-soft-2 (#f5f5f5)
+ * - hairline (#ebebeb) / hairline-strong (#a1a1a1)
+ * - ink (#171717) / body (#4d4d4d)
+ * - success / link (#0070f3 / #50e3c2) / error (#ee0000) / warning (#f5a623)
+ * - brand-primary (#EA580C / #F97316)
  */
 const MONK_THEME_TOKENS = {
   '--dsw-alias-brand-primary': { light: MONK.orange600, dark: MONK.orange500 },
   '--dsw-alias-brand-text': { light: MONK.orange600, dark: MONK.orange400 },
+  '--dsw-alias-bg-base': { light: '#fafafa', dark: '#08090C' },
+  '--dsw-alias-bg-layer-1': { light: '#ffffff', dark: '#0F172A' },
+  '--dsw-alias-bg-layer-2': { light: '#f5f5f5', dark: '#020617' },
+  '--dsw-alias-border-l1': { light: '#ebebeb', dark: 'rgba(255, 255, 255, 0.1)' },
+  '--dsw-alias-border-l2': { light: '#a1a1a1', dark: 'rgba(255, 255, 255, 0.2)' },
+  '--dsw-alias-label-primary': { light: '#171717', dark: '#f2f2f2' },
+  '--dsw-alias-label-secondary': { light: '#4d4d4d', dark: '#a1a1a1' },
+  '--dsw-alias-state-error-primary': { light: '#ee0000', dark: '#ff4d4d' },
+  '--dsw-alias-state-success-primary': { light: '#0070f3', dark: '#50e3c2' },
+  '--dsw-alias-state-warn-primary': { light: '#f5a623', dark: '#f5a623' },
 }
 
 /**
@@ -110,9 +124,10 @@ const MONK_THEME_TOKENS = {
 const STYLES = `
 .monk-brand-mark{display:block;flex:none;border-radius:12px;overflow:hidden}
 .monk-brand-name{display:inline-flex;align-items:center;gap:8px;min-width:0;font-family:Geist,Inter,system-ui,-apple-system,sans-serif}
-.monk-brand-word{font-size:16px;font-weight:600;letter-spacing:-0.4px;line-height:1.2;color:var(--dsw-alias-label-primary,#171717)}
+.monk-brand-word{font-size:16px;font-weight:600;letter-spacing:-0.6px;line-height:1.2;color:var(--dsw-alias-label-primary,#171717)}
 .monk-brand-badge{font-family:Geist Mono,ui-monospace,SFMono-Regular,Menlo,Monaco,monospace;font-size:10px;font-weight:500;line-height:1.4;padding:2px 8px;border-radius:9999px;white-space:nowrap;color:${MONK.orange600};background:rgba(249,115,22,.10);border:1px solid rgba(249,115,22,.24)}
 body[data-ds-dark-theme] .monk-brand-badge{color:${MONK.orange400};background:rgba(249,115,22,.14);border-color:rgba(249,115,22,.32)}
+[class*="_headlineText"]{font-family:Geist,Inter,system-ui,-apple-system,sans-serif !important;font-weight:600 !important;letter-spacing:-0.96px !important}
 [class*="_previewBadge"]{display:none !important}
 .monk-halo{stroke-dasharray:720 180;animation:monk-halo-spin 7s linear infinite}
 .monk-head{transform-box:fill-box;transform-origin:center;animation:monk-head-pulse 2.2s ease-in-out infinite}
