@@ -109,10 +109,10 @@ const MONK_THEME_TOKENS = {
  */
 const STYLES = `
 .monk-brand-mark{display:block;flex:none;border-radius:12px;overflow:hidden}
-.monk-brand-name{display:inline-flex;align-items:center;gap:7px;min-width:0}
-.monk-brand-word{font-size:17px;font-weight:700;letter-spacing:-.02em;line-height:1.15;color:var(--dsw-alias-label-primary,#0f1115)}
-.monk-brand-badge{font-size:10px;font-weight:600;line-height:1.5;padding:1.5px 7px;border-radius:999px;white-space:nowrap;color:${MONK.orange600};background:rgba(249,115,22,.12);border:1px solid rgba(249,115,22,.28)}
-body[data-ds-dark-theme] .monk-brand-badge{color:${MONK.orange400};background:rgba(249,115,22,.14);border-color:rgba(249,115,22,.3)}
+.monk-brand-name{display:inline-flex;align-items:center;gap:8px;min-width:0;font-family:Geist,Inter,system-ui,-apple-system,sans-serif}
+.monk-brand-word{font-size:16px;font-weight:600;letter-spacing:-0.4px;line-height:1.2;color:var(--dsw-alias-label-primary,#171717)}
+.monk-brand-badge{font-family:Geist Mono,ui-monospace,SFMono-Regular,Menlo,Monaco,monospace;font-size:10px;font-weight:500;line-height:1.4;padding:2px 8px;border-radius:9999px;white-space:nowrap;color:${MONK.orange600};background:rgba(249,115,22,.10);border:1px solid rgba(249,115,22,.24)}
+body[data-ds-dark-theme] .monk-brand-badge{color:${MONK.orange400};background:rgba(249,115,22,.14);border-color:rgba(249,115,22,.32)}
 [class*="_previewBadge"]{display:none !important}
 .monk-halo{stroke-dasharray:720 180;animation:monk-halo-spin 7s linear infinite}
 .monk-head{transform-box:fill-box;transform-origin:center;animation:monk-head-pulse 2.2s ease-in-out infinite}
