@@ -181,9 +181,10 @@ export function serializeMessages(
   return out
 }
 
-/** 把 dsh 的工具 schema 投影为 wire 工具声明。 */
+/** 把 dsh 的工具 schema 投影为 wire 工具声明（按名字字典序绝对确定性排序，最大化前缀 KV 缓存命中）。 */
 export function serializeTools(tools: readonly ToolSchema[]): MonkWireTool[] {
-  return tools.map(tool => ({
+  const sorted = [...tools].sort((a, b) => a.name.localeCompare(b.name))
+  return sorted.map(tool => ({
     type: 'function' as const,
     function: {
       name: tool.name,

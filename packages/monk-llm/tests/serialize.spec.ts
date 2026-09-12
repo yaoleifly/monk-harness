@@ -67,3 +67,16 @@ test('序列化请求：带 system 提示词与工具声明', () => {
   assert.equal(req.tools?.length, 1)
   assert.equal(req.tools?.[0].function.name, 'bash')
 })
+
+test('工具声明确定性按字典序排序，保证前缀 KV 缓存稳定', () => {
+  const tools: ToolSchema[] = [
+    { name: 'write', description: 'write file', parameters: {} },
+    { name: 'bash', description: 'run bash', parameters: {} },
+    { name: 'edit', description: 'edit file', parameters: {} },
+  ]
+  const serialized = serializeTools(tools)
+  assert.deepEqual(
+    serialized.map(t => t.function.name),
+    ['bash', 'edit', 'write'],
+  )
+})
