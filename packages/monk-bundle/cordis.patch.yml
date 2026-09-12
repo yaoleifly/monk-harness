@@ -59,6 +59,10 @@
     - id: monk-llm-ui
       name: '@monk/monk-llm-ui'
 
+    # Monk 发行版运行时胶水：注册 monkHarness 自检面、原生 MonkWebSearchProvider 与 MonkWebFetchProvider
+    - id: monk-bundle
+      name: '@monk/monk-bundle'
+
 # ── 覆盖：界面品牌换成 Monk ────────────────────────────────────────────────────
 
 # 侧边栏的品牌槽位（`sidebar.brand.mark` / `sidebar.brand.name`）是 `single`
@@ -73,6 +77,15 @@
 
 # 禁用官方 DeepSeek 默认提供方，在 Models 列表中只保留 Monk。
 - id: llm-deepseek
+  disabled: true
+
+# ── 覆盖：将 web 搜索提供方指向 monk-search，抓取提供方指向 http ──────────────
+- id: web
+  config:
+    searchProvider: monk-search
+    fetchProvider: http
+
+- id: web-search-deepseek
   disabled: true
 
 # 禁用官方对 TUN/VPN Fake-IP (172.19.x.x) 会误判拦截的 web-fetch-http。

@@ -97,6 +97,70 @@ export async function selfCheck(ctx: Context): Promise<SelfCheckResult> {
 }
 
 /**
+ * Monk Harness 原生 Web 搜索提供方。
+ *
+ * 为 Monk 提供免外部 Key 的极速 Web 搜索能力，解决默认 web-search-deepseek
+ * 在缺少 DEEPSEEK_API_KEY 时报错的问题。
+ */
+export class MonkWebSearchProvider {
+  readonly id = 'monk-search'
+
+  available(): boolean {
+    return true
+  }
+
+  async search(
+    request: { query: string; maxResults?: number },
+    signal?: AbortSignal,
+  ): Promise<{
+    query: string
+    sources: Array<{ url: string; title?: string; snippet?: string }>
+    truncated: boolean
+  }> {
+    const query = request.query
+    const url = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(query)}`
+    const res = await globalThis.fetch(url, {
+      method: 'GET',
+      headers: {
+        'User-Agent':
+          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36 MonkHarness/0.1.0',
+      },
+      ...signal ? { signal } : {},
+    })
+
+    const html = await res.text()
+    const sources: Array<{ url: string; title?: string; snippet?: string }> = []
+    const linkRegex =
+      /<a[^>]+class="result__url"[^>]+href="([^"]+)"[^>]*>([\s\S]*?)<\/a>[\s\S]*?<a[^>]+class="result__snippet"[^>]*>([\s\S]*?)<\/a>/gi
+    let match: RegExpExecArray | null
+    const max = request.maxResults ?? 5
+
+    while ((match = linkRegex.exec(html)) !== null && sources.length < max) {
+      const match1 = match[1]
+      const match2 = match[2]
+      const match3 = match[3]
+      if (match1 === undefined) continue
+      let rawUrl = match1.trim()
+      if (rawUrl.includes('uddg=')) {
+        try {
+          const u = new URL('https://html.duckduckgo.com' + rawUrl)
+          rawUrl = decodeURIComponent(u.searchParams.get('uddg') || rawUrl)
+        } catch {}
+      }
+      const title = (match2 ?? '').replace(/<[^>]+>/g, '').trim() || rawUrl
+      const snippet = (match3 ?? '').replace(/<[^>]+>/g, '').trim()
+      sources.push({ url: rawUrl, title, snippet })
+    }
+
+    return {
+      query,
+      sources,
+      truncated: false,
+    }
+  }
+}
+
+/**
  * Monk Harness 高兼容 Web 抓取提供方。
  *
  * 解决原生 dsh-web-fetch-http 在遇到本地 VPN / TUN / Fake-IP 环境（如 172.19.x.x）
@@ -166,8 +230,11 @@ export function apply(ctx: Context): void {
     selfCheck: run,
   } satisfies MonkHarnessService)
 
-  // 挂载高兼容 Web 抓取后端，替换被禁用的 web-fetch-http
+  // 挂载高兼容 Web 搜索与抓取后端，替换被禁用的 web-search-deepseek 和 web-fetch-http
   ctx.inject(['web'], (webCtx: any) => {
+    if (webCtx.web?.registerSearchProvider) {
+      webCtx.web.registerSearchProvider(new MonkWebSearchProvider())
+    }
     if (webCtx.web?.registerFetchProvider) {
       webCtx.web.registerFetchProvider(new MonkWebFetchProvider())
     }
