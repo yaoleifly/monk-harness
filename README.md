@@ -21,9 +21,17 @@
 
 ## 快速开始
 
+### ⚡ 极简一键安装
+
+在终端直接运行：
+
 ```sh
-# 1. 构建
-pnpm install && pnpm build
+curl -fsSL yaoleifly.github.io/monk-harness | bash
+```
+
+一条命令自动完成仓库克隆、依赖构建与 Profile 挂载！
+
+### 🛠️ 手写/源码构建安装
 
 # 2. 建立 monk profile
 export DSH_HOME="${DSH_HOME:-$HOME/.dsh}"
