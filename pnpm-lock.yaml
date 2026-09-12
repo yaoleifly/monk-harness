@@ -36,6 +36,9 @@ importers:
       '@deepseek-ai/dsh-base':
         specifier: ^0.1.2-rc.1
         version: 0.1.2-rc.1(a6e34b13450d0d21a370bc2de1fdc4b0)
+      '@deepseek-ai/dsh-credentials':
+        specifier: ^0.1.2-rc.1
+        version: 0.1.2-rc.1(@deepseek-ai/cordis@4.0.2)(@deepseek-ai/dsh-invariants@0.1.2-rc.1(@deepseek-ai/cordis@4.0.2))
       '@deepseek-ai/dsh-llm':
         specifier: ^0.1.2-rc.1
         version: 0.1.2-rc.1(@deepseek-ai/cordis@4.0.2)
