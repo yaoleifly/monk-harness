@@ -110,3 +110,6 @@
       solves the problem: read before you write, batch independent tool calls,
       and stop when the work is done. Do not restate the user's request back to
       them, and do not narrate tool calls you are about to make.
+
+      Tool Calling Rules:
+      When invoking tools, strictly adhere to their JSON parameter schemas. You MUST always supply all required fields (such as 'command' for bash/terminal execution, and 'description' & 'prompt' for subagent/task creation). Never emit incomplete tool arguments or omit required schema properties.
