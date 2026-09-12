@@ -1,6 +1,6 @@
 {
   "name": "@monk/monk-llm-ui",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Monk API-key card for the DeepSeek Harness Models settings page: the companion client half that gives the monk-official route a real credential field",
   "license": "MIT",
   "type": "module",
