@@ -122,180 +122,13 @@ const MONK_THEME_TOKENS = {
  * `--dsw-alias-*` 语义令牌并带兜底值，因此在本包单独存在时也能渲染。
  */
 const STYLES = `
-@import url("https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap");
-
-:root {
-  --dsw-font-family: Geist, Inter, system-ui, -apple-system, sans-serif !important;
-  --ds-font-family-code: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, monospace !important;
-}
-
-::selection {
-  background: #171717 !important;
-  color: #f2f2f2 !important;
-}
-
-body[data-ds-dark-theme] ::selection {
-  background: #f2f2f2 !important;
-  color: #171717 !important;
-}
-
-body {
-  font-family: Geist, Inter, system-ui, -apple-system, sans-serif !important;
-  -webkit-font-smoothing: antialiased !important;
-  -moz-osx-font-smoothing: grayscale !important;
-  background-color: #fafafa !important;
-  color: #171717 !important;
-}
-
-body[data-ds-dark-theme] {
-  background-color: #08090C !important;
-  color: #f2f2f2 !important;
-}
-
-/* ── Vercel Atmospheric Mesh Gradient Backdrop ── */
-.monk-mesh-gradient {
-  position: absolute;
-  top: 6%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 720px;
-  height: 380px;
-  max-width: 92vw;
-  pointer-events: none;
-  z-index: 0;
-  opacity: 0.18;
-  filter: blur(80px);
-  border-radius: 50%;
-  background: radial-gradient(circle at 20% 20%, #007cf0 0%, transparent 55%),
-              radial-gradient(circle at 80% 20%, #7928ca 0%, transparent 55%),
-              radial-gradient(circle at 50% 65%, #ff0080 0%, transparent 55%),
-              radial-gradient(circle at 85% 75%, #00dfd8 0%, transparent 55%),
-              radial-gradient(circle at 15% 75%, #f9cb28 0%, transparent 55%);
-}
-
-body[data-ds-dark-theme] .monk-mesh-gradient {
-  opacity: 0.35;
-  filter: blur(90px);
-}
-
-/* ── Hero Container & Headline ── */
-[class*="_root"]:has([class*="_headline"]) {
-  position: relative;
-  overflow: visible !important;
-}
-
-[class*="_stack"] {
-  position: relative;
-  z-index: 1;
-}
-
-[class*="_headline"] {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 12px !important;
-}
-
-[class*="_headlineText"] {
-  font-family: Geist, Inter, system-ui, -apple-system, sans-serif !important;
-  font-size: 32px !important;
-  font-weight: 600 !important;
-  line-height: 40px !important;
-  letter-spacing: -1.28px !important;
-  color: #171717 !important;
-}
-
-body[data-ds-dark-theme] [class*="_headlineText"] {
-  color: #ffffff !important;
-}
-
-[class*="_previewBadge"] {
-  display: none !important;
-}
-
-/* ── Input Card (Vercel Card-Marketing / Stacked Shadow) ── */
-[class*="_card"] {
-  background: #ffffff !important;
-  border: 1px solid #ebebeb !important;
-  border-radius: 16px !important;
-  box-shadow: 0px 1px 1px rgba(0,0,0,0.03), 0px 2px 4px rgba(0,0,0,0.04), 0px 8px 16px -4px rgba(0,0,0,0.03) !important;
-  transition: border-color 0.15s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.15s cubic-bezier(0.4, 0, 0.2, 1) !important;
-}
-
-[class*="_card"]:focus-within {
-  border-color: #171717 !important;
-  box-shadow: 0px 1px 1px rgba(0,0,0,0.03), 0px 4px 12px rgba(0,0,0,0.08), 0 0 0 1px #171717 !important;
-}
-
-body[data-ds-dark-theme] [class*="_card"] {
-  background: #0F172A !important;
-  border: 1px solid rgba(255,255,255,0.12) !important;
-  box-shadow: 0px 2px 4px rgba(0,0,0,0.4), 0px 8px 24px -4px rgba(0,0,0,0.6) !important;
-}
-
-body[data-ds-dark-theme] [class*="_card"]:focus-within {
-  border-color: rgba(255,255,255,0.35) !important;
-  box-shadow: 0px 2px 4px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.35) !important;
-}
-
-/* ── Vercel Pill Buttons (button-primary: 100px pill) ── */
-[class*="_primary"][role="button"],
-button[class*="_primary"] {
-  border-radius: 100px !important;
-  background: #171717 !important;
-  color: #ffffff !important;
-  font-family: Geist, Inter, system-ui, -apple-system, sans-serif !important;
-  font-weight: 500 !important;
-  transition: background-color 0.15s ease !important;
-}
-
-[class*="_primary"][role="button"]:hover,
-button[class*="_primary"]:hover {
-  background: #333333 !important;
-}
-
-body[data-ds-dark-theme] [class*="_primary"][role="button"],
-body[data-ds-dark-theme] button[class*="_primary"] {
-  background: #ffffff !important;
-  color: #171717 !important;
-}
-
-body[data-ds-dark-theme] [class*="_primary"][role="button"]:hover,
-body[data-ds-dark-theme] button[class*="_primary"]:hover {
-  background: #e5e5e5 !important;
-}
-
-/* ── Sidebar & Layout Frames ── */
-[class*="_frame"] {
-  background-color: #fafafa !important;
-}
-
-body[data-ds-dark-theme] [class*="_frame"] {
-  background-color: #08090C !important;
-}
-
-[class*="_sidebarCol"] {
-  background-color: #ffffff !important;
-  border-right: 1px solid #ebebeb !important;
-}
-
-body[data-ds-dark-theme] [class*="_sidebarCol"] {
-  background-color: #0B0F19 !important;
-  border-right: 1px solid rgba(255,255,255,0.08) !important;
-}
-
-/* ── Code Blocks & Inline Mono ── */
-pre, code, [class*="_code"] {
-  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, monospace !important;
-}
-
-/* ── Monk Brand Mark & Animations ── */
 .monk-brand-mark{display:block;flex:none;border-radius:12px;overflow:hidden}
 .monk-brand-name{display:inline-flex;align-items:center;gap:8px;min-width:0;font-family:Geist,Inter,system-ui,-apple-system,sans-serif}
 .monk-brand-word{font-size:16px;font-weight:600;letter-spacing:-0.6px;line-height:1.2;color:var(--dsw-alias-label-primary,#171717)}
-.monk-brand-badge{font-family:"Geist Mono",ui-monospace,SFMono-Regular,Menlo,Monaco,monospace;font-size:10px;font-weight:500;line-height:1.4;padding:2px 8px;border-radius:9999px;white-space:nowrap;color:#EA580C;background:rgba(249,115,22,.10);border:1px solid rgba(249,115,22,.24)}
-body[data-ds-dark-theme] .monk-brand-badge{color:#FB923C;background:rgba(249,115,22,.14);border-color:rgba(249,115,22,.32)}
-
+.monk-brand-badge{font-family:Geist Mono,ui-monospace,SFMono-Regular,Menlo,Monaco,monospace;font-size:10px;font-weight:500;line-height:1.4;padding:2px 8px;border-radius:9999px;white-space:nowrap;color:${MONK.orange600};background:rgba(249,115,22,.10);border:1px solid rgba(249,115,22,.24)}
+body[data-ds-dark-theme] .monk-brand-badge{color:${MONK.orange400};background:rgba(249,115,22,.14);border-color:rgba(249,115,22,.32)}
+[class*="_headlineText"]{font-family:Geist,Inter,system-ui,-apple-system,sans-serif !important;font-weight:600 !important;letter-spacing:-0.96px !important}
+[class*="_previewBadge"]{display:none !important}
 .monk-halo{stroke-dasharray:720 180;animation:monk-halo-spin 7s linear infinite}
 .monk-head{transform-box:fill-box;transform-origin:center;animation:monk-head-pulse 2.2s ease-in-out infinite}
 .monk-robe-l,.monk-robe-r,.monk-core{transform-box:fill-box;transform-origin:50% 85%}
@@ -600,22 +433,6 @@ function rewriteHeroCopy(element) {
 }
 
 /**
- * 确保在空白会话首屏中插入 Vercel 签名多色 Mesh Gradient 氛围底色。
- */
-function ensureMeshGradient() {
-  if (typeof document === 'undefined' || typeof document.querySelector !== 'function') return
-  const headline = document.querySelector(HERO_COPY_SELECTOR)
-  if (headline === null) return
-  const root = typeof headline.closest === 'function' ? headline.closest('[class*="_root"]') : null
-  if (root === null) return
-  if (typeof root.querySelector === 'function' && root.querySelector('.monk-mesh-gradient') !== null) return
-  const gradient = document.createElement('div')
-  gradient.className = 'monk-mesh-gradient'
-  gradient.setAttribute('aria-hidden', 'true')
-  if (typeof root.prepend === 'function') root.prepend(gradient)
-}
-
-/**
  * 在一个（新增的）节点及其子树里查找首屏文案节点并改写。
  *
  * 文本节点要往上看一层：React 把 `{t("hero.headline")}` 渲染成一个文本节点，
@@ -626,15 +443,12 @@ function sweepHeroCopy(node) {
   if (node === null || node === undefined) return
   if (node.nodeType === 3) {
     rewriteHeroCopy(node.parentElement)
-    ensureMeshGradient()
     return
   }
   if (node.nodeType !== 1) return
   rewriteHeroCopy(node)
-  if (typeof node.querySelectorAll === 'function') {
-    for (const element of node.querySelectorAll(HERO_COPY_SELECTOR)) rewriteHeroCopy(element)
-  }
-  ensureMeshGradient()
+  if (typeof node.querySelectorAll !== 'function') return
+  for (const element of node.querySelectorAll(HERO_COPY_SELECTOR)) rewriteHeroCopy(element)
 }
 
 /**
@@ -653,13 +467,11 @@ function sweepHeroCopy(node) {
 function observeHeroCopy() {
   if (typeof document === 'undefined') return () => {}
   sweepHeroCopy(document.body)
-  ensureMeshGradient()
   if (typeof MutationObserver === 'undefined') return () => {}
   const observer = new MutationObserver((records) => {
     for (const record of records) {
       if (record.type === 'characterData') {
         rewriteHeroCopy(record.target.parentElement)
-        ensureMeshGradient()
         continue
       }
       for (const node of record.addedNodes) sweepHeroCopy(node)
