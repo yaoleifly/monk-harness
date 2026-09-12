@@ -81,36 +81,60 @@ const LEGAL_API_KEY = /^[\x21-\x7E]+$/
 /** 文案字典。键名同时被测试钉住，漏一个键会让卡片显示空白。 */
 const zh = {
   keyLabel: 'API 密钥',
-  keyPlaceholder: '粘贴 monk.party 提供的密钥',
+  keyPlaceholder: '粘贴 monk.party 提供的密钥 (sk-...)',
   save: '保存',
   saving: '保存中…',
   saved: '已保存，下一次请求即生效。',
   keyRequired: '请填写密钥。',
   keyIllegalCharacters: '密钥格式不合法：不能含空格，且只能是可打印 ASCII 字符。',
   failed: '保存失败：{message}',
-  hint: '只需填写 monk.party 提供的密钥（端点 https://monk.party/v1 与模型目录已内置）。含有 .edu 邮箱享 9 折优惠，已购买可前往 https://monk.party/account/ 查询 Key 与天数用量。',
+  hint: '只需填写 monk.party 提供的密钥（端点 https://monk.party/v1 与模型目录已内置）。',
   store: '以只写方式存为凭据引用 {ref}，不会写进 settings.yaml，也不会回显。',
   readOnly: '当前部署的凭据存储是只读的，无法在这里保存。',
   configured: '已配置',
   unconfigured: '尚未配置',
   fromEnvironment: '由启动环境提供',
+  editKey: '修改密钥',
+  collapse: '收起',
+  testBtn: '测试联通',
+  testing: '测试中…',
+  testSuccess: '联通正常 · 3 个模型就绪',
+  testFailed: '联通失败：{message}',
+  modelsTitle: 'Monk 融合模型阵容',
+  modelMonk: 'monk (质量优先主力 · 1M 上下文)',
+  modelFast: 'monk-fast (极速高吞吐 · 日常会话)',
+  modelCoding: 'monk-coding (编程特化 · Agent 工具链)',
+  accountLink: '前往 monk.party/account/ 查询 Key 与用量',
+  eduNotice: '.edu 邮箱享 9 折月卡优惠',
 }
 
 const en = {
   keyLabel: 'API key',
-  keyPlaceholder: 'Paste the key issued by monk.party',
+  keyPlaceholder: 'Paste the key issued by monk.party (sk-...)',
   save: 'Save',
   saving: 'Saving…',
   saved: 'Saved; the next request picks it up.',
   keyRequired: 'Enter a key.',
   keyIllegalCharacters: 'Not a valid key: no spaces, printable ASCII only.',
   failed: 'Could not save: {message}',
-  hint: 'This is the only field you need (endpoint https://monk.party/v1 & catalog are built-in). .edu emails get 10% off; visit https://monk.party/account/ to look up keys.',
+  hint: 'This is the only field you need (endpoint https://monk.party/v1 & catalog are built-in).',
   store: 'Stored write-only as the credential reference {ref}; never written to settings.yaml and never echoed back.',
   readOnly: 'This deployment stores credentials read-only, so it cannot be saved here.',
   configured: 'Configured',
   unconfigured: 'Not configured',
   fromEnvironment: 'Supplied by the launching environment',
+  editKey: 'Edit key',
+  collapse: 'Collapse',
+  testBtn: 'Test Connection',
+  testing: 'Testing…',
+  testSuccess: 'Connected: 3 models ready',
+  testFailed: 'Connection failed: {message}',
+  modelsTitle: 'Monk Fusion Models',
+  modelMonk: 'monk (Quality-first · 1M Context)',
+  modelFast: 'monk-fast (High-throughput · Daily Chat)',
+  modelCoding: 'monk-coding (Coding-agent · Tool-driven)',
+  accountLink: 'Visit monk.party/account/ to look up key & usage',
+  eduNotice: '.edu emails get 10% off monthly plan',
 }
 
 /**
@@ -120,28 +144,48 @@ const en = {
  * `--dsw-alias-*` 语义令牌并带兜底值，因此在本包单独存在时也能渲染。
  */
 const STYLES = `
-.monk-key{display:flex;flex-direction:column;gap:12px;padding:16px;border:1px solid var(--dsw-alias-border-l1,#ebebeb);border-radius:12px;background:var(--dsw-alias-bg-base,#fafafa);font-family:Geist,Inter,system-ui,-apple-system,sans-serif;box-shadow:0 1px 1px rgba(0,0,0,.03),0 2px 2px rgba(0,0,0,.04)}
-.monk-key-head{align-items:center;gap:8px;display:flex}
-.monk-key-label{color:var(--dsw-alias-label-primary,#171717);font-size:14px;font-weight:500;line-height:20px;letter-spacing:-0.28px}
+.monk-key{display:flex;flex-direction:column;gap:14px;padding:16px;border:1px solid var(--dsw-alias-border-l1,#ebebeb);border-radius:12px;background:var(--dsw-alias-bg-base,#ffffff);font-family:Geist,Inter,system-ui,-apple-system,sans-serif;box-shadow:0 1px 1px rgba(0,0,0,.03),0 2px 4px rgba(0,0,0,.04)}
+.monk-key-head{align-items:center;gap:10px;display:flex}
+.monk-key-label{color:var(--dsw-alias-label-primary,#171717);font-size:14px;font-weight:600;line-height:20px;letter-spacing:-0.28px}
 .monk-key-dot{box-sizing:border-box;border-radius:50%;flex:none;width:8px;height:8px;display:inline-block}
 .monk-key-dot-on{background:var(--dsw-alias-state-success-primary,#0070f3)}
 .monk-key-dot-off{background:var(--dsw-alias-state-error-primary,#ee0000)}
-.monk-key-state{color:var(--dsw-alias-label-secondary,#888888);margin-left:auto;font-family:Geist Mono,ui-monospace,SFMono-Regular,Menlo,Monaco,monospace;font-size:12px;line-height:16px}
-.monk-key-row{align-items:center;gap:8px;display:flex}
-.monk-key-input{box-sizing:border-box;border:1px solid var(--dsw-alias-border-l1,#ebebeb);flex:1 1 0;min-width:0;height:32px;color:var(--dsw-alias-label-primary,#171717);font-family:Geist Mono,ui-monospace,SFMono-Regular,Menlo,Monaco,monospace;background:var(--dsw-alias-bg-layer-1,#ffffff);border-radius:6px;padding:0 10px;font-size:13px;line-height:20px;transition:border-color .15s ease,box-shadow .15s ease}
+.monk-key-state{color:var(--dsw-alias-label-secondary,#888888);font-family:Geist Mono,ui-monospace,SFMono-Regular,Menlo,Monaco,monospace;font-size:12px;line-height:16px}
+.monk-key-toggle{color:var(--dsw-alias-brand-primary,#ea580c);background:none;border:none;cursor:pointer;font-family:Geist,Inter,system-ui,-apple-system,sans-serif;font-size:13px;font-weight:500;padding:0 4px;margin-left:auto;line-height:18px}
+.monk-key-toggle:hover{text-decoration:underline}
+.monk-key-models{display:flex;flex-direction:column;gap:8px;padding:10px 12px;border:1px solid var(--dsw-alias-border-l1,#ebebeb);border-radius:8px;background:var(--dsw-alias-bg-layer-2,#f5f5f5)}
+.monk-key-models-title{font-size:12px;font-weight:600;color:var(--dsw-alias-label-secondary,#4d4d4d);letter-spacing:-0.2px}
+.monk-key-models-grid{display:flex;flex-wrap:wrap;gap:6px}
+.monk-key-pill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:6px;background:var(--dsw-alias-bg-layer-1,#ffffff);border:1px solid var(--dsw-alias-border-l1,#ebebeb);font-size:12px;color:var(--dsw-alias-label-primary,#171717)}
+.monk-key-pill-name{font-family:Geist Mono,ui-monospace,monospace;font-weight:600;color:var(--dsw-alias-brand-primary,#ea580c)}
+.monk-key-pill-desc{color:var(--dsw-alias-label-secondary,#888888);font-size:11px}
+.monk-key-body{display:flex;flex-direction:column;gap:10px}
+.monk-key-row{align-items:center;gap:8px;display:flex;flex-wrap:wrap}
+.monk-key-input{box-sizing:border-box;border:1px solid var(--dsw-alias-border-l1,#ebebeb);flex:1 1 200px;min-width:0;height:34px;color:var(--dsw-alias-label-primary,#171717);font-family:Geist Mono,ui-monospace,SFMono-Regular,Menlo,Monaco,monospace;background:var(--dsw-alias-bg-layer-1,#ffffff);border-radius:6px;padding:0 10px;font-size:13px;line-height:20px;transition:border-color .15s ease,box-shadow .15s ease}
 .monk-key-input:focus{border-color:var(--dsw-alias-brand-primary,#ea580c);box-shadow:0 0 0 2px rgba(234,88,12,.15);outline:none}
 .monk-key-input::placeholder{color:var(--dsw-alias-label-secondary,#888888);font-family:Geist,Inter,system-ui,-apple-system,sans-serif}
 .monk-key-input:disabled{opacity:.6;cursor:default}
-.monk-key-save{box-sizing:border-box;height:32px;color:#ffffff;font-family:Geist,Inter,system-ui,-apple-system,sans-serif;font-weight:500;cursor:pointer;background:#171717;border:none;border-radius:100px;justify-content:center;align-items:center;padding:0 16px;font-size:14px;line-height:20px;display:inline-flex;transition:background-color .15s ease}
+.monk-key-btn-group{display:flex;align-items:center;gap:6px}
+.monk-key-save{box-sizing:border-box;height:34px;color:#ffffff;font-family:Geist,Inter,system-ui,-apple-system,sans-serif;font-weight:500;cursor:pointer;background:#171717;border:none;border-radius:100px;justify-content:center;align-items:center;padding:0 16px;font-size:13px;line-height:20px;display:inline-flex;transition:background-color .15s ease}
 .monk-key-save:hover:not(:disabled){background:#333333}
 .monk-key-save:disabled{opacity:.4;cursor:default}
 .monk-key-save:focus-visible{box-shadow:0 0 0 2px #171717;outline:none}
+.monk-key-test{box-sizing:border-box;height:34px;color:var(--dsw-alias-label-primary,#171717);font-family:Geist,Inter,system-ui,-apple-system,sans-serif;font-weight:500;cursor:pointer;background:var(--dsw-alias-bg-layer-1,#ffffff);border:1px solid var(--dsw-alias-border-l1,#ebebeb);border-radius:100px;justify-content:center;align-items:center;padding:0 14px;font-size:13px;line-height:20px;display:inline-flex;transition:background-color .15s ease,border-color .15s ease}
+.monk-key-test:hover:not(:disabled){background:var(--dsw-alias-bg-layer-2,#f5f5f5);border-color:#171717}
+.monk-key-test:disabled{opacity:.5;cursor:default}
+.monk-key-cancel{box-sizing:border-box;height:34px;color:var(--dsw-alias-label-secondary,#4d4d4d);font-family:Geist,Inter,system-ui,-apple-system,sans-serif;font-weight:500;cursor:pointer;background:transparent;border:1px solid var(--dsw-alias-border-l1,#ebebeb);border-radius:100px;justify-content:center;align-items:center;padding:0 12px;font-size:13px;line-height:20px;display:inline-flex;transition:background-color .15s ease}
+.monk-key-cancel:hover{background:var(--dsw-alias-bg-layer-2,#f5f5f5)}
+.monk-key-test-ok{color:var(--dsw-alias-state-success-primary,#0070f3);font-size:12px;font-weight:500;margin:0}
+.monk-key-test-fail{color:var(--dsw-alias-state-error-primary,#ee0000);font-size:12px;font-weight:500;margin:0}
 .monk-key-hint,.monk-key-note,.monk-key-ok,.monk-key-error{margin:0;font-size:12px;line-height:18px}
 .monk-key-hint{color:var(--dsw-alias-label-secondary,#4d4d4d);letter-spacing:-0.28px}
 .monk-key-note{color:var(--dsw-alias-label-secondary,#888888)}
 .monk-key-ok{color:var(--dsw-alias-state-success-primary,#0070f3);font-weight:500}
 .monk-key-error{color:var(--dsw-alias-state-error-primary,#ee0000);font-weight:500}
 .monk-key-code{font-family:Geist Mono,ui-monospace,SFMono-Regular,Menlo,Monaco,monospace;font-size:12px;padding:2px 5px;background:var(--dsw-alias-bg-layer-2,#f5f5f5);border:1px solid var(--dsw-alias-border-l1,#ebebeb);border-radius:4px;overflow-wrap:anywhere}
+.monk-key-links{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding-top:4px;border-top:1px solid var(--dsw-alias-border-l1,#ebebeb)}
+.monk-key-link{color:var(--dsw-alias-brand-primary,#ea580c);font-size:12px;text-decoration:none}
+.monk-key-link:hover{text-decoration:underline}
 `
 
 /**
@@ -289,6 +333,8 @@ function MonkKeyCard(props) {
   const provider = props.provider
   const [draft, setDraft] = React.useState('')
   const [busy, setBusy] = React.useState(false)
+  const [testing, setTesting] = React.useState(false)
+  const [testResult, setTestResult] = React.useState(undefined)
   const [failure, setFailure] = React.useState(undefined)
   const [saved, setSaved] = React.useState(false)
   const [ref, setRef] = React.useState(DEFAULT_API_KEY_ENV)
@@ -344,6 +390,29 @@ function MonkKeyCard(props) {
     }
   }
 
+  const handleTestConnection = async () => {
+    setTesting(true)
+    setTestResult(undefined)
+    try {
+      const keyToTest = draft.trim()
+      const res = await fetch('https://monk.party/v1/models', {
+        headers: keyToTest ? { Authorization: `Bearer ${keyToTest}` } : {},
+      })
+      if (res.ok) {
+        setTestResult({ ok: true, msg: t('testSuccess') })
+      } else {
+        setTestResult({ ok: false, msg: fill(t('testFailed'), { message: `HTTP ${res.status}` }) })
+      }
+    } catch (err) {
+      setTestResult({
+        ok: false,
+        msg: fill(t('testFailed'), { message: err instanceof Error ? err.message : String(err) }),
+      })
+    } finally {
+      setTesting(false)
+    }
+  }
+
   return jsxs('div', {
     className: 'monk-key',
     children: [
@@ -360,70 +429,140 @@ function MonkKeyCard(props) {
             className: 'monk-key-state',
             children: configured ? t('configured') : t('unconfigured'),
           }),
-          configured && !expanded ? jsx('button', {
-            className: 'monk-key-toggle',
-            type: 'button',
-            onClick: () => setExpanded(true),
-            children: t('editKey'),
-          }) : null,
+          configured && !expanded
+            ? jsx('button', {
+                className: 'monk-key-toggle',
+                type: 'button',
+                onClick: () => setExpanded(true),
+                children: t('editKey'),
+              })
+            : null,
         ],
       }),
-      expanded ? jsxs('div', {
-        className: 'monk-key-body',
+      jsxs('div', {
+        className: 'monk-key-models',
         children: [
+          jsx('span', { className: 'monk-key-models-title', children: t('modelsTitle') }),
           jsxs('div', {
-            className: 'monk-key-row',
+            className: 'monk-key-models-grid',
             children: [
-              jsx('input', {
-                className: 'monk-key-input',
-                type: 'password',
-                autoComplete: 'off',
-                spellCheck: false,
-                value: draft,
-                placeholder: t('keyPlaceholder'),
-                'aria-label': t('keyLabel'),
-                'aria-invalid': failure !== undefined,
-                disabled: busy || !writable,
-                onChange: (event) => setDraft(event.target.value),
-                onKeyDown: (event) => {
-                  if (event.key === 'Enter') {
-                    event.preventDefault()
-                    void submit()
-                  }
-                },
+              jsxs('div', {
+                className: 'monk-key-pill',
+                children: [
+                  jsx('span', { className: 'monk-key-pill-name', children: 'monk' }),
+                  jsx('span', { className: 'monk-key-pill-desc', children: t('modelMonk') }),
+                ],
               }),
-              jsx('button', {
-                className: 'monk-key-save',
-                type: 'button',
-                disabled: busy || !writable,
-                onClick: () => {
-                  void submit()
-                },
-                children: busy ? t('saving') : t('save'),
+              jsxs('div', {
+                className: 'monk-key-pill',
+                children: [
+                  jsx('span', { className: 'monk-key-pill-name', children: 'monk-fast' }),
+                  jsx('span', { className: 'monk-key-pill-desc', children: t('modelFast') }),
+                ],
               }),
-              configured ? jsx('button', {
-                className: 'monk-key-cancel',
-                type: 'button',
-                onClick: () => {
-                  setExpanded(false)
-                  setFailure(undefined)
-                },
-                children: t('collapse'),
-              }) : null,
+              jsxs('div', {
+                className: 'monk-key-pill',
+                children: [
+                  jsx('span', { className: 'monk-key-pill-name', children: 'monk-coding' }),
+                  jsx('span', { className: 'monk-key-pill-desc', children: t('modelCoding') }),
+                ],
+              }),
             ],
           }),
-          jsx('p', { className: 'monk-key-hint', children: t('hint') }),
-          failure === undefined
-            ? null
-            : jsx('p', { className: 'monk-key-error', role: 'alert', children: failure }),
-          saved ? jsx('p', { className: 'monk-key-ok', role: 'status', children: t('saved') }) : null,
         ],
-      }) : null,
+      }),
+      expanded
+        ? jsxs('div', {
+            className: 'monk-key-body',
+            children: [
+              jsxs('div', {
+                className: 'monk-key-row',
+                children: [
+                  jsx('input', {
+                    className: 'monk-key-input',
+                    type: 'password',
+                    autoComplete: 'off',
+                    spellCheck: false,
+                    value: draft,
+                    placeholder: t('keyPlaceholder'),
+                    'aria-label': t('keyLabel'),
+                    'aria-invalid': failure !== undefined,
+                    disabled: busy || !writable,
+                    onChange: (event) => setDraft(event.target.value),
+                    onKeyDown: (event) => {
+                      if (event.key === 'Enter') {
+                        event.preventDefault()
+                        void submit()
+                      }
+                    },
+                  }),
+                  jsx('button', {
+                    className: 'monk-key-save',
+                    type: 'button',
+                    disabled: busy || !writable,
+                    onClick: () => {
+                      void submit()
+                    },
+                    children: busy ? t('saving') : t('save'),
+                  }),
+                  jsx('button', {
+                    className: 'monk-key-test',
+                    type: 'button',
+                    disabled: testing || busy,
+                    onClick: () => {
+                      void handleTestConnection()
+                    },
+                    children: testing ? t('testing') : t('testBtn'),
+                  }),
+                  configured
+                    ? jsx('button', {
+                        className: 'monk-key-cancel',
+                        type: 'button',
+                        onClick: () => {
+                          setExpanded(false)
+                          setFailure(undefined)
+                          setTestResult(undefined)
+                        },
+                        children: t('collapse'),
+                      })
+                    : null,
+                ],
+              }),
+              testResult !== undefined
+                ? jsx('p', {
+                    className: testResult.ok ? 'monk-key-test-ok' : 'monk-key-test-fail',
+                    role: 'status',
+                    children: testResult.msg,
+                  })
+                : null,
+              jsx('p', { className: 'monk-key-hint', children: t('hint') }),
+              failure !== undefined
+                ? jsx('p', { className: 'monk-key-error', role: 'alert', children: failure })
+                : null,
+              saved ? jsx('p', { className: 'monk-key-ok', role: 'status', children: t('saved') }) : null,
+            ],
+          })
+        : null,
       jsx('p', {
         className: 'monk-key-note',
-        children: t('store').split('{ref}').flatMap((part, index) => index === 0
-          ? [part]
-          : [jsx('code', { className: 'monk-key-code', children: ref }, `ref${index}`), part]),
+        children: t('store').split('{ref}').flatMap((part, index) =>
+          index === 0
+            ? [part]
+            : [jsx('code', { className: 'monk-key-code', children: ref }, `ref${index}`), part]),
+      }),
+      jsxs('div', {
+        className: 'monk-key-links',
+        children: [
+          jsx('a', {
+            className: 'monk-key-link',
+            href: 'https://monk.party/account/',
+            target: '_blank',
+            rel: 'noopener noreferrer',
+            children: t('accountLink'),
+          }),
+          jsx('span', { className: 'monk-key-note', children: '·' }),
+          jsx('span', { className: 'monk-key-note', children: t('eduNotice') }),
+        ],
       }),
       writable ? null : jsx('p', { className: 'monk-key-note', children: t('readOnly') }),
     ],
