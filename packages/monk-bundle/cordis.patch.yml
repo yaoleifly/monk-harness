@@ -1,0 +1,108 @@
+# monk-harness bundle patch：叠加在 dsh-base 之上的 Monk 层。
+#
+# 这是**一层 patch**，不是一棵完整的树：`dsh-base` 已经插入了核心行，本文件
+# 只做两件事——插入 Monk 自己的新行，以及覆盖需要改成 Monk 默认值的既有行。
+#
+# 两种条目形态，语义完全不同（这一点踩过坑）：
+#
+#   1. `- insert: [ ... ]`  只用于**新增**行。把已存在的 id 写进 insert 会以
+#      `duplicate loader entry id` 让整棵插件树加载失败。
+#   2. 裸 `- id: <既有 id>` 用于**覆盖**行，按 id 定位并替换其整个 `config`。
+#      因为它替换而非合并，凡是要覆盖的行必须把完整 config 重述一遍。
+#
+# 行顺序不承载加载语义（激活由服务可用性驱动），分组只为可读。
+# 用户的 profile cordis.patch.yml 在本层之后应用，因此用户永远能覆盖这里任何一行。
+
+# ── Monk 自己的四个新模块 ─────────────────────────────────────────────────────
+
+- insert:
+    # 适配器：注册 monk-official 路由，承载 monk / monk-fast / monk-coding。
+    # 不在配置里内联任何密钥：apiKeyEnv 是凭据**引用**，每次请求经 credentials
+    # seam 解析，因此轮换后的密钥在下一次请求即生效。
+    - id: monk-llm
+      name: '@monk/monk-llm'
+      config:
+        apiKeyEnv: MONK_API_KEY
+        reasoningEffort: medium
+        streamIdleTimeoutMs: 300000
+
+    # 路由策略：按会话事实在轮次边界选模型，轮次内保持粘滞以避免击穿 KV 缓存。
+    - id: monk-router
+      name: '@monk/monk-router'
+      config:
+        enabled: true
+        stickyWithinTurn: true
+
+    # 用量账本：只读观察 session/event，暴露 monk_usage 工具与 /monk 命令。
+    - id: monk-usage
+      name: '@monk/monk-usage'
+      config:
+        exposeTool: true
+        exposeCommand: true
+        plan:
+          name: Monk 月度订阅
+          priceCny: 30
+          warnAt: 0.8
+
+    # Monk 密钥卡片：Models 设置页里那个"只填一项"的密钥输入框。
+    #
+    # 为什么单独成行、而不是塞进 monk-llm 的 config：Models 页的手写编辑器只认
+    # `llm-deepseek` 与 `llm-pi-ai` 两个设置命名空间，其它命名空间一律落到
+    # `layout: "unknown"`——只渲染一句"其余字段在 settings.yaml 中"，并把「保存」
+    # 置灰。第三方适配器家族的正式接缝是 `settings.models.provider-card` 槽位
+    # （按 settingsNs 分键，注册一次即收到该家族的全部卡片），本包就是它在
+    # `monk-llm` 键上的占用者。
+    #
+    # 宿主半边是空的，但**这一行不能省**：浏览器半边由 dsh-client-modules 扫描
+    # 加载器条目、再从同一份 package.json 里读 `dsh.client` 才发现。没有加载器
+    # 条目，客户端半边永远不会被请求，界面上也不会报错——只是密钥框不见了。
+    - id: monk-llm-ui
+      name: '@monk/monk-llm-ui'
+
+# ── 覆盖：界面品牌换成 Monk ────────────────────────────────────────────────────
+
+# 侧边栏的品牌槽位（`sidebar.brand.mark` / `sidebar.brand.name`）是 `single`
+# 槽位：两个占用者不是并排而是**互相遮蔽**，谁赢取决于插件激活顺序——那不是一个
+# 可以依赖的顺序。所以这里显式禁用官方行，而不是与它抢同一个槽位。
+#
+# `ui-brand-official` 只在 web-app 组合包里存在（headless 没有浏览器外壳）。
+# 覆盖一个不存在的 id 是空操作，因此本层对 headless profile 无害——headless
+# 本来也不需要品牌。
+- id: ui-brand-official
+  disabled: true
+
+- insert:
+    # Monk 品牌：monk.party 的标志与字标占住两个侧边栏槽位，并在**活动主题之上**
+    # 叠一层 Monk 令牌覆盖（`ctx.theme.overrideTokens`），因此用户无论选 light、
+    # dark 还是 system，强调色都跟着走，而不是注册一个要用户手动切的主题。
+    - id: monk-ui-brand
+      name: '@monk/monk-ui-brand'
+
+# ── 覆盖：把默认模型指向 Monk ──────────────────────────────────────────────────
+
+# 默认取 monk（质量优先）而不是 monk-fast——入口处的模型决定用户对产品的
+# 第一印象，路由策略会在后续轮次按任务类别把它降到更便宜的档位。
+- id: agent-default-model
+  config:
+    provider: monk-official
+    model: monk
+
+# ── 覆盖：Monk 的产品人格 ──────────────────────────────────────────────────────
+
+# dsh-web-app 也覆盖了这一行；本层在它之后应用，因此这里胜出。
+# plan-mode、各工具插件仍各自拥有自己的提示词段。
+- id: system-prompt
+  config:
+    persona: |
+      You are running on the Monk harness, powered by the Monk fused-model API.
+      Monk exposes three models that differ in cost and speed rather than in
+      capability: monk (quality first), monk-fast (daily throughput), and
+      monk-coding (tool-driven coding work). The harness selects between them per
+      turn, so do not describe yourself as a specific model version. If the user
+      asks which model is answering, report the model id from your request
+      context rather than guessing.
+
+      Speed is the point of this harness. Prefer the shortest path that actually
+      solves the problem: read before you write, batch independent tool calls,
+      and stop when the work is done. Do not restate the user's request back to
+      them, and do not narrate tool calls you are about to make.

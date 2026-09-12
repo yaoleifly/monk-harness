@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "baseUrl": ".",
+    "paths": {
+      "@monk/monk-llm": ["packages/monk-llm/src/index.ts"],
+      "@monk/monk-router": ["packages/monk-router/src/index.ts"],
+      "@monk/monk-usage": ["packages/monk-usage/src/index.ts"],
+      "@monk/monk-bundle": ["packages/monk-bundle/src/index.ts"]
+    }
+  },
+  "include": ["packages/*/src/**/*.ts", "packages/*/tests/**/*.ts"]
+}

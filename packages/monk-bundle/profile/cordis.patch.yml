@@ -1,0 +1,46 @@
+# monk profile 的用户 patch 层。
+#
+# 应用顺序：本文件在**所有组合包之后**应用，因此这里的每一行都能覆盖
+# dsh-base、dsh-web-app 与 @monk/monk-bundle 的默认值。这是用户的最终话语权，
+# 也是 monk-bundle 不设"不可变默认"的原因。
+#
+# ⚠️ 本文件是**空的**（顶层空数组）。不要把它写成组合包 patch 的副本——
+# 那会把 monk-llm 等行插入第二次，dsh 会以
+# `duplicate loader entry id: monk-llm` 拒绝加载整棵插件树。
+#
+# 本 profile 的 patchReload 为 live：保存本文件后，长驻的 web 表面会热重载，
+# 无需重启进程。
+#
+# 两种条目形态：
+#   - 裸 `- id: <既有 id>`：覆盖该行，**完整重述** config（patch 是替换不是合并）。
+#   - `- insert: [ ... ]`：新增行。已存在的 id 写进 insert 会加载失败。
+#
+# 常见改法：
+#
+#   # 换个默认模型
+#   - id: agent-default-model
+#     config:
+#       provider: monk-official
+#       model: monk-coding
+#
+#   # 关掉自动路由，永远用同一个模型
+#   - id: monk-router
+#     config:
+#       enabled: false
+#
+#   # 让编码工具名之外的信号也触发 coding 分层
+#   - id: monk-router
+#     config:
+#       enabled: true
+#       codingTools: [bash, edit, write, run_code, playwright]
+#
+#   # 加上月度输入额度，让 /monk 能报"还剩多少"
+#   - id: monk-usage
+#     config:
+#       plan:
+#         name: Monk 月度订阅
+#         priceCny: 30
+#         inputTokensLimit: 50000000
+#         warnAt: 0.8
+
+[]

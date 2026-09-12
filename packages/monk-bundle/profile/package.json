@@ -1,0 +1,20 @@
+{
+  "name": "monk-profile",
+  "private": true,
+  "version": "0.1.0",
+  "description": "The Monk Harness profile template. Copied into $DSH_HOME/profiles/monk on first launch; the bundles below are applied in order over an empty entry list, so monk-bundle wins every row it touches.",
+  "dsh": {
+    "profile": {
+      "bundles": [
+        "@deepseek-ai/dsh-base",
+        "@deepseek-ai/dsh-web-app",
+        "@monk/monk-bundle",
+        "dshmarket"
+      ],
+      "patchReload": "live"
+    }
+  },
+  "dependencies": {
+    "dshmarket": ">=1.0.0"
+  }
+}
