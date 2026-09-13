@@ -82,6 +82,22 @@ test('/monk 命令注册与基础响应', async () => {
   assert.equal(resCache.kind, 'success')
   assert.ok(resCache.text.includes('Monk 前缀 KV 缓存统计'))
 
+  // 测试 /monk ping (mock fetch)
+  const originalFetch = globalThis.fetch
+  globalThis.fetch = async () =>
+    new Response(JSON.stringify({ object: 'list' }), {
+      status: 200,
+      headers: { 'cf-ray': '12345678-NRT', server: 'cloudflare' },
+    })
+  try {
+    const resPing = await registeredCommand.handler({ rawInput: 'ping', agent: invocation.agent })
+    assert.equal(resPing.kind, 'success')
+    assert.ok(resPing.text.includes('东京 (Tokyo, JP)'))
+    assert.ok(resPing.text.includes('往返延迟 (RTT)'))
+  } finally {
+    globalThis.fetch = originalFetch
+  }
+
   // 测试 /monk export
   const resExport = await registeredCommand.handler({ rawInput: 'export', agent: invocation.agent })
   assert.equal(resExport.kind, 'success')

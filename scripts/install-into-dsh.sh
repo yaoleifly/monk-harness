@@ -109,6 +109,18 @@ MONK_PROFILE_DIR="$PROFILE_DIR" node -e '
   exit 1
 }
 
+# ── 6. 同步 Monk 专属 Agent Presets ──────────────────────────────────────────
+echo "==> 同步 Monk 专属 Agent Presets 到 $DSH_HOME/.agent-presets"
+mkdir -p "$DSH_HOME/.agent-presets"
+for p in "$REPO_ROOT/packages/monk-bundle/presets/"*; do
+  if [ -d "$p" ]; then
+    preset_name="$(basename "$p")"
+    mkdir -p "$DSH_HOME/.agent-presets/$preset_name"
+    cp "$p/preset.yml" "$DSH_HOME/.agent-presets/$preset_name/preset.yml"
+    cp "$p/agent.cordis.yml" "$DSH_HOME/.agent-presets/$preset_name/agent.cordis.yml"
+  fi
+done
+
 cat <<EOF
 
 完成。

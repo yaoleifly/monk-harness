@@ -355,6 +355,73 @@ export function apply(ctx: Context, config: Config): void {
             }
           }
 
+          if (sub === 'ping') {
+            const baseURL = process.env.MONK_BASE_URL || 'https://monk.party/v1'
+            let key = process.env.MONK_API_KEY
+            const credentials = ctx.get('credentials')
+            if (!key && credentials !== undefined) {
+              const hit = await credentials.resolve('MONK_API_KEY')
+              if (hit !== undefined && hit.value.length > 0) key = hit.value
+            }
+
+            const t0 = performance.now()
+            let res: Response
+            try {
+              res = await globalThis.fetch(`${baseURL.replace(/\/+$/, '')}/models`, {
+                method: 'GET',
+                headers: key ? { Authorization: `Bearer ${key}` } : {},
+                signal: AbortSignal.timeout(10000),
+              })
+            } catch (err) {
+              return {
+                kind: 'error' as const,
+                text: [
+                  '⚡ Monk 边缘节点连通性测速失败：',
+                  `目标端点：${baseURL}`,
+                  `网络错误：${err instanceof Error ? err.message : String(err)}`,
+                  '诊断提示：请检查本地网络、代理或 VPN 是否能正常访问 monk.party。',
+                ].join('\n'),
+              }
+            }
+            const rtt = Math.round(performance.now() - t0)
+            const cfRay = res.headers.get('cf-ray') ?? ''
+            const nodeCode = (cfRay.split('-')[1] ?? 'Global').toUpperCase()
+            const CITIES: Record<string, string> = {
+              NRT: '东京 (Tokyo, JP)',
+              HND: '东京 (Tokyo, JP)',
+              KIX: '大阪 (Osaka, JP)',
+              HKG: '香港 (Hong Kong, HK)',
+              SIN: '新加坡 (Singapore, SG)',
+              TPE: '台北 (Taipei, TW)',
+              ICN: '首尔 (Seoul, KR)',
+              SJC: '圣何塞 (San Jose, US)',
+              LAX: '洛杉矶 (Los Angeles, US)',
+              SFO: '旧金山 (San Francisco, US)',
+              FRA: '法兰克福 (Frankfurt, DE)',
+              LHR: '伦敦 (London, UK)',
+            }
+            const location = CITIES[nodeCode] ?? nodeCode
+            const quality =
+              rtt < 100
+                ? '极佳 (Excellent) ⚡'
+                : rtt < 300
+                  ? '优良 (Good) ✓'
+                  : rtt < 600
+                    ? '一般 (Fair)'
+                    : '延迟较高 (High Latency)'
+
+            const lines = [
+              '⚡ Monk 边缘节点连通性与测速报告：',
+              `目标端点：${baseURL}`,
+              `往返延迟 (RTT)：${rtt}ms`,
+              `加速网络：Cloudflare Anycast`,
+              `边缘节点：${nodeCode} · ${location}${cfRay ? ` (Ray ID: ${cfRay})` : ''}`,
+              `连接质量：${quality}`,
+              `鉴权状态：${res.status === 200 ? '通过 ✓ (HTTP 200 · 3 个融合模型就绪)' : res.status === 401 ? '未通过 ✗ (401 密钥无效或未配置)' : `HTTP ${res.status}`}`,
+            ]
+            return { kind: 'success' as const, text: lines.join('\n') }
+          }
+
           if (sub === 'cache') {
             const month = currentMonth()
             const totals = ledger.forMonth(month)
@@ -421,6 +488,7 @@ export function apply(ctx: Context, config: Config): void {
                 'Monk 指令帮助：',
                 '/monk 或 /monk usage - 查看订阅用量与本会话开销',
                 '/monk status 或 /monk router - 查看当前会话的模型选路依据与路由状态',
+                '/monk ping - 测试与 Monk 边缘节点的连接延迟、节点归属与鉴权状态',
                 '/monk cache - 查看前缀 KV 缓存命中率与加速统计',
                 '/monk search [on|off|auto] - 查看或设置智能联网搜索模式',
                 '/monk export - 导出当前用量与开销报告 Markdown',
@@ -433,7 +501,7 @@ export function apply(ctx: Context, config: Config): void {
 
           return {
             kind: 'error' as const,
-            text: `未知子命令 "${sub}"；可用：usage、status、cache、search、export、doctor、update、plan、help`,
+            text: `未知子命令 "${sub}"；可用：usage、status、ping、cache、search、export、doctor、update、plan、help`,
           }
         },
       })

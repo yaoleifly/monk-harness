@@ -1,0 +1,3 @@
+name: Monk 实时调研助手 (Research Assistant)
+description: 绑定 monk-fast 极速模型，默认激活实时 Web Grounding 与推特/文档检索，极速整理最新技术情报。
+order: 3

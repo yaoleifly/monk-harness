@@ -79,12 +79,20 @@ dsh --profile monk
 ```
 $ /monk          # 查看订阅用量与本会话 Token 统计
 $ /monk status   # 查看当前会话的模型选路依据与路由状态（如触发了什么工具、推理强度等）
+$ /monk ping     # 实时测试到 monk.party 边缘节点的 RTT 延迟、节点归属与鉴权状态
+$ /monk cache    # 查看前缀 KV 缓存命中率与上下文复用加速指标
+$ /monk search   # 查看或切换智能实时联网搜索模式（auto / on / off）
 $ /monk doctor   # 运行系统自检（检查路由注册、模型目录、默认设置、API Key 配置）
 $ /monk plan     # 查看订阅规格与额度阈值
 $ /monk help     # 查看指令帮助
 ```
 
 模型也能自己查 —— `monk_usage` 工具让它知道剩余额度，从而主动收敛输出长度，而不是等被拒绝。
+
+**Monk 专属 Agent 预设（Presets）。** 预装三档专为 Monk 融合模型特化调优的生产力预设（可在 Web 会话底部切换）：
+- **`monk-speed-coder`（Monk 极速全栈编程）**：绑定 `monk-coding`，优化并行工具调用与外科手术式 Diff 重构；
+- **`monk-flash-architect`（Monk 系统架构师）**：绑定 `monk` 旗舰与深度推理，专精复杂架构设计与 RFC 规范推演；
+- **`monk-research-assistant`（Monk 实时调研助手）**：绑定 `monk-fast` 极速模型，默认深度整合实时网页检索与技术情报归纳。
 
 **默认内置三大实用插件。** profile 默认搭载生态热门生产力插件：
 - **[dshmarket](https://dshmk.com/)**：可视化插件市场，一键搜索与安装扩展；

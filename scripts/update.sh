@@ -58,8 +58,20 @@ dsh plugin --profile monk add \
   @liustack/modsearch \
   dsh-context
 
-# 5. 触发热重载与自检
-echo "-> 4/4 触发热重载与运行自检..."
+# 5. 同步 Monk 专属 Agent Presets
+echo "-> 4/5 同步 Monk 专属 Agent Presets 到 $DSH_HOME/.agent-presets..."
+mkdir -p "$DSH_HOME/.agent-presets"
+for p in "$REPO_ROOT/packages/monk-bundle/presets/"*; do
+  if [ -d "$p" ]; then
+    preset_name="$(basename "$p")"
+    mkdir -p "$DSH_HOME/.agent-presets/$preset_name"
+    cp "$p/preset.yml" "$DSH_HOME/.agent-presets/$preset_name/preset.yml"
+    cp "$p/agent.cordis.yml" "$DSH_HOME/.agent-presets/$preset_name/agent.cordis.yml"
+  fi
+done
+
+# 6. 触发热重载与自检
+echo "-> 5/5 触发热重载与运行自检..."
 touch "$PROFILE_DIR/cordis.patch.yml" 2>/dev/null || true
 
 dsh --profile monk --dump-config | grep -q "id: monk-llm" || {
