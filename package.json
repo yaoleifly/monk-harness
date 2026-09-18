@@ -1,6 +1,6 @@
 {
   "name": "monk-harness",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "private": true,
   "description": "Monk Harness: an agent harness distribution built on the DeepSeek Harness plugin framework, defaulting to the Monk fused-model API",
   "type": "module",

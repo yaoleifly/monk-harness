@@ -1,6 +1,6 @@
 {
   "name": "@monk/monk-router",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Task-class model routing policy for Monk Harness: picks monk / monk-fast / monk-coding per turn from observed session activity",
   "license": "MIT",
   "type": "module",

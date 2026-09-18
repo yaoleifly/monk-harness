@@ -1,6 +1,6 @@
 {
   "name": "@monk/monk-ui-brand",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Monk brand occupants for the DeepSeek Harness Web client: the sidebar mark and wordmark, the blank-session hero mark, plus the Monk accent layer over the active theme",
   "license": "MIT",
   "type": "module",

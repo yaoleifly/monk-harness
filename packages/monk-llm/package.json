@@ -1,6 +1,6 @@
 {
   "name": "@monk/monk-llm",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Monk fused-model LLM adapter for the DeepSeek Harness: registers the monk-official provider route with monk / monk-fast / monk-coding",
   "license": "MIT",
   "type": "module",

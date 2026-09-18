@@ -1,6 +1,6 @@
 {
   "name": "@monk/monk-bundle",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "The Monk Harness composition bundle: a profile patch layer over dsh-base that wires the Monk adapter, router, and usage meter, plus the startup self-check glue plugin",
   "license": "MIT",
   "type": "module",

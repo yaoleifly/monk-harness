@@ -1,6 +1,6 @@
 {
   "name": "@monk/monk-usage",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Subscription metering for Monk Harness: folds per-step token usage out of the session log into a queryable ledger, and exposes it as a model tool and a /monk command",
   "license": "MIT",
   "type": "module",
