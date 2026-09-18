@@ -32,6 +32,7 @@ import {
   type UsagePlan,
   type UsageTotals,
 } from './ledger.ts'
+import { pruneVerbatim } from './pruner.ts'
 
 export const name = 'monk-usage'
 export const inject = ['tools']
@@ -212,6 +213,37 @@ export function apply(ctx: Context, config: Config): void {
             exceeded: quota.exceeded,
             warning: quota.warning,
           },
+        }
+      },
+    }))
+
+    ctx.tools.register(defineTool({
+      name: 'monk_prune',
+      description:
+        'Prune stale or superseded historical tool outputs (such as old file reads that were overwritten by edits, or verbose command traces) to free up context window tokens. All conversation text, instructions, and code discussions stay 100% verbatim without lossy summarization.',
+      parameters: {},
+      output: {
+        schema: {
+          type: 'object',
+          additionalProperties: false,
+          properties: {
+            prunedCount: { type: 'number', required: true },
+            charsSaved: { type: 'number', required: true },
+            summary: { type: 'string', required: true },
+          },
+        },
+        render: (_args, value) => [{ type: 'text', text: value.summary }],
+      },
+      async execute(_args, exec) {
+        if (!exec.agent) {
+          return { prunedCount: 0, charsSaved: 0, summary: 'No active agent session context.' }
+        }
+        const res = pruneVerbatim(exec.agent.session)
+        const summary = `Pruned ${res.prunedCount} stale tool results, saving ~${formatTokens(Math.round(res.charsSaved / 4))} tokens while keeping conversation text 100% verbatim.`
+        return {
+          prunedCount: res.prunedCount,
+          charsSaved: res.charsSaved,
+          summary,
         }
       },
     }))
@@ -447,6 +479,26 @@ export function apply(ctx: Context, config: Config): void {
             return { kind: 'success' as const, text: lines.join('\n') }
           }
 
+          if (sub === 'prune') {
+            if (agent === undefined) {
+              return { kind: 'error' as const, text: '此命令需在有效会话上下文中运行。' }
+            }
+            const summary = pruneVerbatim(agent.session)
+            const tokenEstimate = formatTokens(Math.round(summary.charsSaved / 4))
+            const lines = [
+              '⚡ Monk Verbatim Pruner (无损上下文智能剪枝报告)：',
+              `- 扫描表面节点数：${summary.examinedNodes} 个`,
+              `- 成功修剪失效工具结果：${summary.prunedCount} 处`,
+              `- 累计减少字符：${summary.charsSaved} 字符 (~${tokenEstimate} token)`,
+              `- 对话历史状态：User & Assistant 对话与代码 100% 逐字原样保留！`,
+            ]
+            if (summary.details.length > 0) {
+              lines.push('\n修剪明细：')
+              for (const d of summary.details) lines.push(`- ${d}`)
+            }
+            return { kind: 'success' as const, text: lines.join('\n') }
+          }
+
           if (sub === 'export') {
             const month = currentMonth()
             const totals = ledger.forMonth(month)
@@ -489,6 +541,7 @@ export function apply(ctx: Context, config: Config): void {
                 '/monk 或 /monk usage - 查看订阅用量与本会话开销',
                 '/monk status 或 /monk router - 查看当前会话的模型选路依据与路由状态',
                 '/monk ping - 测试与 Monk 边缘节点的连接延迟、节点归属与鉴权状态',
+                '/monk prune - 智能修剪过时与冗余的工具输出，保留对话 100% 原文无损',
                 '/monk cache - 查看前缀 KV 缓存命中率与加速统计',
                 '/monk search [on|off|auto] - 查看或设置智能联网搜索模式',
                 '/monk export - 导出当前用量与开销报告 Markdown',
@@ -501,7 +554,7 @@ export function apply(ctx: Context, config: Config): void {
 
           return {
             kind: 'error' as const,
-            text: `未知子命令 "${sub}"；可用：usage、status、ping、cache、search、export、doctor、update、plan、help`,
+            text: `未知子命令 "${sub}"；可用：usage、status、ping、prune、cache、search、export、doctor、update、plan、help`,
           }
         },
       })
@@ -520,3 +573,5 @@ export {
   UsageLedger,
 } from './ledger.ts'
 export type { QuotaStatus, UsagePlan, UsageTotals } from './ledger.ts'
+export { pruneVerbatim } from './pruner.ts'
+export type { PruneOptions, PruneSummary } from './pruner.ts'

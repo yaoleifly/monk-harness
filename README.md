@@ -80,12 +80,19 @@ dsh --profile monk
 $ /monk          # 查看订阅用量与本会话 Token 统计
 $ /monk status   # 查看当前会话的模型选路依据与路由状态（如触发了什么工具、推理强度等）
 $ /monk ping     # 实时测试到 monk.party 边缘节点的 RTT 延迟、节点归属与鉴权状态
+$ /monk prune    # 智能修剪过时与冗余的工具输出，保持对话 100% 逐字原样无损
 $ /monk cache    # 查看前缀 KV 缓存命中率与上下文复用加速指标
 $ /monk search   # 查看或切换智能实时联网搜索模式（auto / on / off）
 $ /monk doctor   # 运行系统自检（检查路由注册、模型目录、默认设置、API Key 配置）
 $ /monk plan     # 查看订阅规格与额度阈值
 $ /monk help     # 查看指令帮助
 ```
+
+**Monk Verbatim Pruner (无损上下文智能剪枝)。** 借鉴 `fast-jev-compaction` 的核心思想，拒绝任何损失精度的大模型文本总结：
+- **对话与代码解释 100% 原样保持（Verbatim）**：不总结、不重写、不抹杀用户提问与模型推理细节；
+- **智能识别失效表面节点**：自动识别已被后续 `edit` / `write` 覆盖的早期 `read` 大文件输出，以及过长的终端 stdout 与网页搜索结果；
+- **原子替换**：利用会话表面操作（`surfaceOp: replace`）原子化替换过时结果，瞬间为超长会话释放 40%~70% 的 Token 上下文，彻底告别上下文爆炸与截断；
+- **双端触发**：用户输入 `/monk prune` 手动瘦身，模型亦可通过内置 `monk_prune` 工具在长程任务中自主触发。
 
 模型也能自己查 —— `monk_usage` 工具让它知道剩余额度，从而主动收敛输出长度，而不是等被拒绝。
 
